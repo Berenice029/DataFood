@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataFood — Sachez ce que vous mangez</title>
+
+  <!-- Fonts : Playfair Display (serif émotionnel) + Nunito (body doux) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- React + ReactDOM UMD -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS — Organic Natural Light
+    ═══════════════════════════════════════ */
+    :root {
+      --bg:       #faf8f4;
+      --bg2:      #f3efe8;
+      --bg3:      #ebe5d8;
+      --white:    #ffffff;
+      --green:    #2e7d4f;
+      --green-m:  #3a9a62;
+      --green-l:  #a8d5b5;
+      --green-xl: #dff0e6;
+      --green-xxl:#f0f9f3;
+      --amber:    #c47d2a;
+      --amber-l:  #fdf0dc;
+      --red:      #c0392b;
+      --red-l:    #fdecea;
+      --ink:      #1c2b1f;
+      --ink-2:    #3d5445;
+      --ink-3:    #7a9480;
+      --ink-4:    #b0c4b8;
+      --serif:    'Playfair Display', Georgia, serif;
+      --body:     'Nunito', sans-serif;
+      --r:        12px;
+      --r-l:      20px;
+      --shadow:   0 4px 24px rgba(46,125,79,0.10);
+      --shadow-l: 0 12px 48px rgba(46,125,79,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* Subtle organic texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+    @keyframes float    { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-8px); } }
+    @keyframes leafSpin { from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+    @keyframes growIn   { from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+
+    .fade-up { animation: fadeUp 0.75s cubic-bezier(.22,.68,0,1.2) both; }
+    .d1 { animation-delay: 0.1s; }
+    .d2 { animation-delay: 0.25s; }
+    .d3 { animation-delay: 0.4s; }
+    .d4 { animation-delay: 0.55s; }
+    .d5 { animation-delay: 0.7s; }
+
+    /* ══════════════════════
+       NAV
+    ══════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 2.5rem;
+      background: rgba(250,248,244,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(46,125,79,0.1);
+    }
+    .nav-logo {
+      font-family: var(--serif); font-size: 1.5rem; font-weight: 900;
+      color: var(--ink); letter-spacing: -0.02em; text-decoration: none;
+    }
+    .nav-logo em { font-style: italic; color: var(--green); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-link  { font-size: 0.88rem; font-weight: 500; color: var(--ink-2); text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover { color: var(--green); }
+    .nav-cta {
+      font-family: var(--body); font-size: 0.85rem; font-weight: 600;
+      padding: 0.55em 1.3em; border-radius: 2em;
+      background: var(--green); color: #fff; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: var(--green-m); transform: translateY(-1px); }
+
+    /* ══════════════════════
+       HERO
+    ══════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 3rem;
+      padding: 9rem 2rem 5rem;
+      max-width: 1100px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    @media(max-width:760px){ .hero { grid-template-columns: 1fr; padding: 8rem 2rem 4rem; } }
+
+    .hero-left { }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; font-weight: 600;
+      padding: 0.35em 1em; border-radius: 2em;
+      background: var(--green-xxl); color: var(--green);
+      border: 1px solid var(--green-l); margin-bottom: 1.5rem;
+    }
+    .hero-pill::before { content: '🌿'; font-size: 0.9rem; }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 4.5vw, 4.2rem);
+      font-weight: 900; line-height: 1.08;
+      color: var(--ink); margin-bottom: 1.4rem; letter-spacing: -0.02em;
+    }
+    .hero h1 em { font-style: italic; color: var(--green); }
+    .hero-sub {
+      font-size: 1.12rem; font-weight: 300; color: var(--ink-2);
+      max-width: 480px; margin-bottom: 2.4rem; line-height: 1.75;
+    }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+
+    .btn-main {
+      font-family: var(--body); font-size: 1rem; font-weight: 600;
+      padding: 0.85em 2em; border-radius: 2em; border: none; cursor: pointer;
+      transition: all 0.22s;
+    }
+    .btn-main.primary {
+      background: var(--green); color: #fff;
+      box-shadow: 0 6px 20px rgba(46,125,79,0.3);
+    }
+    .btn-main.primary:hover { background: var(--green-m); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(46,125,79,0.4); }
+    .btn-main.outline {
+      background: transparent; color: var(--green);
+      border: 2px solid var(--green-l);
+    }
+    .btn-main.outline:hover { background: var(--green-xxl); transform: translateY(-2px); }
+
+    /* Trust badges */
+    .hero-trust { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+    .trust-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem; font-weight: 500; color: var(--ink-3);
+    }
+    .trust-item span { font-size: 1rem; }
+
+    /* Right — phone mockup */
+    .hero-right {
+      display: flex; justify-content: center; align-items: center;
+      animation: float 5s ease-in-out infinite;
+    }
+    @media(max-width:760px){ .hero-right { order: -1; } }
+
+    .phone-mock {
+      width: 260px;
+      background: var(--white);
+      border-radius: 36px;
+      border: 3px solid var(--bg3);
+      padding: 1.5rem 1.2rem;
+      box-shadow: var(--shadow-l), 0 0 0 8px rgba(46,125,79,0.06);
+      position: relative;
+    }
+    .phone-notch {
+      width: 80px; height: 20px;
+      background: var(--bg3); border-radius: 0 0 12px 12px;
+      margin: 0 auto 1.2rem; display: block;
+    }
+    .phone-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+    .phone-back { font-size: 0.8rem; color: var(--green); font-weight: 600; }
+    .phone-title { font-family: var(--serif); font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+
+    .phone-product {
+      background: var(--green-xxl); border-radius: var(--r);
+      padding: 0.8rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .phone-product-icon { font-size: 1.8rem; }
+    .phone-product-name { font-size: 0.8rem; font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .phone-product-lot  { font-size: 0.7rem; color: var(--ink-3); font-family: monospace; }
+
+    .phone-steps { display: flex; flex-direction: column; gap: 0; }
+    .phone-step {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--bg3);
+    }
+    .phone-step:last-child { border-bottom: none; }
+    .phone-step-dot {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; border: 1.5px solid var(--green-l);
+      background: var(--green-xxl);
+    }
+    .phone-step-info { flex: 1; }
+    .phone-step-label { font-size: 0.72rem; font-weight: 600; color: var(--ink); display: block; }
+    .phone-step-detail { font-size: 0.65rem; color: var(--ink-3); }
+    .phone-step-ok { color: var(--green); font-size: 0.8rem; }
+
+    .phone-score {
+      margin-top: 0.8rem;
+      background: linear-gradient(135deg, var(--green), var(--green-m));
+      border-radius: var(--r); padding: 0.8rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .phone-score-label { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .phone-score-val   { font-family: var(--serif); font-size: 1.5rem; font-weight: 900; color: #fff; }
+
+    /* Decorative blobs */
+    .blob {
+      position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+      background: radial-gradient(circle, var(--green-xl) 0%, transparent 70%);
+    }
+    .blob1 { width: 500px; height: 500px; top: 5%; right: -10%; opacity: 0.7; }
+    .blob2 { width: 350px; height: 350px; bottom: 5%; left: -8%; opacity: 0.5; }
+
+    /* ══════════════════════
+       SECTION BASE
+    ══════════════════════ */
+    section.s { padding: 6rem 0; position: relative; z-index: 1; }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--green-l), transparent); margin: 0; }
+
+    .section-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.73rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 1rem;
+    }
+    h2.st {
+      font-family: var(--serif);
+      font-size: clamp(1.9rem, 3.5vw, 3.2rem);
+      font-weight: 900; line-height: 1.12; letter-spacing: -0.02em;
+      color: var(--ink); margin-bottom: 1.1rem;
+    }
+    h2.st em { font-style: italic; color: var(--green); }
+    .s-lead {
+      font-size: 1.05rem; font-weight: 300; color: var(--ink-2);
+      max-width: 560px; margin-bottom: 3rem; line-height: 1.75;
+    }
+
+    /* ══════════════════════
+       PROBLÈMES
+    ══════════════════════ */
+    .prob-bg { background: var(--bg2); }
+    .prob-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+    @media(max-width:740px){ .prob-layout { grid-template-columns: 1fr; } }
+
+    .prob-visual {
+      background: var(--white); border-radius: var(--r-l);
+      border: 1px solid var(--bg3); padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+    .prob-visual-title { font-family: var(--serif); font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--ink); }
+    .label-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+    .label-item {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.7rem 0.9rem; border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .label-item.real   { background: var(--green-xxl); color: var(--green); font-weight: 500; }
+    .label-item.hidden { background: var(--amber-l);   color: var(--amber); font-weight: 500; }
+    .label-item .li-icon { font-size: 1rem; }
+    .label-item .li-badge {
+      margin-left: auto; font-size: 0.7rem; padding: 0.15em 0.6em;
+      border-radius: 2em; font-weight: 600;
+    }
+    .label-item.real   .li-badge { background: var(--green-l); color: var(--green); }
+    .label-item.hidden .li-badge { background: #fdd9b5; color: var(--amber); }
+
+    .prob-list { display: flex; flex-direction: column; gap: 1rem; }
+    .prob-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.4rem; border-radius: var(--r);
+      background: var(--white); border: 1px solid var(--bg3);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .prob-item:hover { box-shadow: var(--shadow); transform: translateX(4px); }
+    .prob-icon-wrap {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--red-l); border: 1.5px solid rgba(192,57,43,0.2);
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .prob-x { font-size: 0.8rem; font-weight: 700; color: var(--red); }
+    .prob-item h3 { font-size: 0.95rem; font-weight: 600; color: var(--ink); margin-bottom: 0.2rem; }
+    .prob-item p  { font-size: 0.85rem; font-weight: 300; color: var(--ink-2); }
+
+    /* ══════════════════════
+       SOLUTION
+    ══════════════════════ */
+    .sol-steps {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:700px){ .sol-steps { grid-template-columns: 1fr; } }
+    .sol-card {
+      background: var(--white); border: 1px solid var(--bg3);
+      border-radius: var(--r-l); padding: 2.2rem 1.8rem;
+      text-align: center; position: relative; overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .sol-card:hover { box-shadow: var(--shadow-l); transform: translateY(-4px); }
+    .sol-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green), var(--green-m));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .sol-card:hover::after { transform: scaleX(1); }
+    .sol-step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green-xxl); border: 1.5px solid var(--green-l);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 700; color: var(--green);
+      margin: 0 auto 1rem;
+    }
+    .sol-emoji { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .sol-card h3 { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; color: var(--ink); margin-bottom: 0.6rem; }
+    .sol-card p  { font-size: 0.88rem; font-weight: 300; color: var(--ink-2); line-height: 1.65; }
+
+    /* QR demo visual */
+    .qr-demo {
+      margin: 3rem auto 0; max-width: 560px;
+      background: var(--white); border-radius: var(--r-l);
+      border: 1px solid var(--bg3); padding: 2rem;
+      display: flex; align-items: center; gap: 1.5rem;
+      box-shadow: var(--shadow); flex-wrap: wrap;
+    }
+    .qr-box {
+      width: 90px; height: 90px; flex-shrink: 0;
+      background: var(--ink); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 2.5rem;
+    }
+    .qr-info h3 { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .qr-info p  { font-size: 0.85rem; color: var(--ink-2); font-weight: 300; }
+    .qr-arrow  { font-size: 1.5rem; color: var(--green); flex-shrink: 0; }
+
+    /* ══════════════════════
+       BÉNÉFICES
+    ══════════════════════ */
+    .ben-bg { background: var(--bg2); }
+    .ben-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:700px){ .ben-grid { grid-template-columns: 1fr; } }
+    .ben-card {
+      border-radius: var(--r-l); padding: 2.5rem 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .ben-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-l); }
+    .ben-card.green  { background: linear-gradient(145deg, var(--green-xxl), #e8f5ee); border: 1px solid var(--green-l); }
+    .ben-card.warm   { background: linear-gradient(145deg, var(--amber-l), #fef6e8); border: 1px solid #f5c88a; }
+    .ben-card.earth  { background: linear-gradient(145deg, var(--bg3), #e8e2d5); border: 1px solid var(--bg3); }
+    .ben-icon { font-size: 2.2rem; display: block; margin-bottom: 1.2rem; }
+    .ben-card h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; color: var(--ink); margin-bottom: 0.6rem; }
+    .ben-card p  { font-size: 0.9rem; font-weight: 300; color: var(--ink-2); line-height: 1.65; }
+    .ben-list { list-style: none; margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .ben-list li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: var(--ink-2); font-weight: 300; }
+    .ben-check { color: var(--green); font-size: 0.8rem; margin-top: 2px; flex-shrink: 0; }
+
+    /* ══════════════════════
+       CAS D'UTILISATION
+    ══════════════════════ */
+    .cas-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    @media(max-width:700px){ .cas-grid { grid-template-columns: 1fr; } }
+    .cas-card {
+      background: var(--white); border: 1px solid var(--bg3);
+      border-radius: var(--r-l); overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .cas-card:hover { box-shadow: var(--shadow-l); transform: translateY(-4px); }
+    .cas-header {
+      padding: 1.8rem 1.8rem 1rem;
+      background: var(--green-xxl); border-bottom: 1px solid var(--green-l);
+    }
+    .cas-emoji { font-size: 2rem; display: block; margin-bottom: 0.6rem; }
+    .cas-tag { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+    .cas-body { padding: 1.4rem 1.8rem; }
+    .cas-card h3 { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+    .cas-card p  { font-size: 0.87rem; font-weight: 300; color: var(--ink-2); line-height: 1.65; }
+    .cas-steps { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 1rem; }
+    .cas-step {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem; color: var(--green); font-weight: 500;
+    }
+    .cas-step::before { content: '→'; }
+
+    /* ══════════════════════
+       CTA FINAL
+    ══════════════════════ */
+    .cta-bg {
+      background: linear-gradient(160deg, var(--green) 0%, #1a5c36 100%);
+      position: relative; overflow: hidden;
+    }
+    .cta-bg::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .cta-blob1 {
+      position: absolute; width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+      top: -200px; right: -100px; pointer-events: none;
+    }
+    .cta-blob2 {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      bottom: -100px; left: 10%; pointer-events: none;
+    }
+
+    .cta-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+      position: relative; z-index: 1;
+    }
+    @media(max-width:740px){ .cta-inner { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+    .cta-text h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 900; color: #fff; line-height: 1.12;
+      letter-spacing: -0.02em; margin-bottom: 1.2rem;
+    }
+    .cta-text h2 em { font-style: italic; opacity: 0.85; }
+    .cta-text p { font-size: 1.05rem; font-weight: 300; color: rgba(255,255,255,0.78); line-height: 1.7; }
+
+    /* Form */
+    .form-card {
+      background: var(--white); border-radius: var(--r-l);
+      padding: 2.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .form-card h3 { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-bottom: 1.6rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.45rem;
+    }
+    .form-ctrl {
+      width: 100%; padding: 0.8em 1.1em;
+      background: var(--bg); border: 1.5px solid var(--bg3);
+      border-radius: var(--r); color: var(--ink);
+      font-family: var(--body); font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-ctrl:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,125,79,0.12); }
+    .form-ctrl::placeholder { color: var(--ink-4); }
+
+    /* Radio group */
+    .radio-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .radio-opt {
+      flex: 1; min-width: 100px; position: relative;
+    }
+    .radio-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .radio-label {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.75em 1em; border-radius: var(--r);
+      border: 1.5px solid var(--bg3); cursor: pointer;
+      font-size: 0.9rem; font-weight: 500; color: var(--ink-2);
+      transition: all 0.2s; user-select: none; text-align: center;
+    }
+    .radio-opt input:checked + .radio-label {
+      border-color: var(--green); background: var(--green-xxl); color: var(--green);
+    }
+    .radio-label:hover { border-color: var(--green-l); background: var(--green-xxl); }
+
+    .btn-submit-b2c {
+      width: 100%; padding: 0.95em;
+      background: var(--green); color: #fff; border: none;
+      border-radius: 2em; font-family: var(--body); font-size: 1rem; font-weight: 600;
+      cursor: pointer; margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-submit-b2c:hover { background: var(--green-m); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(46,125,79,0.4); }
+    .btn-submit-b2c:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Success */
+    .form-success {
+      text-align: center; padding: 2.5rem 1rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    .success-icon { font-size: 3rem; margin-bottom: 1rem; display: block; animation: float 3s ease-in-out infinite; }
+    .form-success h4 { font-family: var(--serif); font-size: 1.4rem; font-weight: 700; color: var(--ink); margin-bottom: 0.6rem; }
+    .form-success p  { font-size: 0.9rem; color: var(--ink-2); font-weight: 300; line-height: 1.65; }
+
+    /* ══════════════════════
+       FOOTER
+    ══════════════════════ */
+    footer {
+      background: var(--ink); color: rgba(255,255,255,0.6);
+      padding: 2.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      position: relative; z-index: 1;
+    }
+    .footer-logo { font-family: var(--serif); font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+    .footer-logo em { font-style: italic; color: var(--green-l); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-link { font-size: 0.82rem; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: var(--green-l); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.28); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--green-l); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState, useEffect } = React;
+
+  /* ═══════════════════════════
+     NAV
+  ═══════════════════════════ */
+  function Nav() {
+    const [scrolled, setScrolled] = useState(false);
+    useEffect(() => {
+      const h = () => setScrolled(window.scrollY > 40);
+      window.addEventListener('scroll', h);
+      return () => window.removeEventListener('scroll', h);
+    }, []);
+    function scrollToForm() {
+      document.getElementById('cta')?.scrollIntoView({ behavior:'smooth' });
+    }
+    return (
+      <nav style={scrolled ? {boxShadow:'0 4px 24px rgba(46,125,79,0.1)'} : {}}>
+        <span className="nav-logo">Data<em>Food</em></span>
+        <div className="nav-right">
+          <button className="nav-cta" onClick={scrollToForm}>Rejoindre la liste</button>
+        </div>
+      </nav>
+    );
+  }
+
+  /* ═══════════════════════════
+     HERO
+  ═══════════════════════════ */
+  function Hero() {
+    function scrollToForm() {
+      document.getElementById('cta')?.scrollIntoView({ behavior:'smooth' });
+    }
+    function scrollToDemo() {
+      document.getElementById('solution')?.scrollIntoView({ behavior:'smooth' });
+    }
+    return (
+      <div style={{position:'relative', overflow:'hidden'}}>
+        <div className="blob blob1" />
+        <div className="blob blob2" />
+        <div className="hero">
+          {/* Texte gauche */}
+          <div className="hero-left">
+            <p className="hero-pill fade-up d1">Traçabilité pour tous</p>
+            <h1 className="fade-up d2">
+              Enfin une traçabilité <em>complète</em> de vos produits alimentaires.
+            </h1>
+            <p className="hero-sub fade-up d3">
+              Découvrez toutes les étapes de production, pas seulement l'origine.
+              Du champ à votre assiette, en quelques secondes.
+            </p>
+            <div className="hero-cta fade-up d4">
+              <button className="btn-main primary" onClick={scrollToDemo}>
+                Tester un exemple
+              </button>
+              <button className="btn-main outline" onClick={scrollToForm}>
+                Rejoindre la liste d'attente
+              </button>
+            </div>
+            <div className="hero-trust fade-up d5">
+              {[
+                { icon:'🔒', text:'Données vérifiées' },
+                { icon:'⚡', text:'Résultat instantané' },
+                { icon:'🆓', text:'Gratuit pour les consommateurs' },
+              ].map((t,i) => (
+                <div className="trust-item" key={i}>
+                  <span>{t.icon}</span> {t.text}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Maquette téléphone droite */}
+          <div className="hero-right fade-up d3">
+            <div className="phone-mock">
+              <span className="phone-notch"/>
+              <div className="phone-header">
+                <span className="phone-back">‹ Scanner</span>
+              </div>
+              <div className="phone-product">
+                <span className="phone-product-icon">🧈</span>
+                <div>
+                  <div className="phone-product-name">Beurre AOP Finistère</div>
+                  <div className="phone-product-lot">LOT-2024-08-FR442</div>
+                </div>
+              </div>
+              <p style={{fontSize:'0.68rem', fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:'0.5rem'}}>Chaîne de traçabilité</p>
+              <div className="phone-steps">
+                {[
+                  { icon:'🐄', label:'Ferme des Abers, Lesneven', detail:'05/08/2024' },
+                  { icon:'🏭', label:'Laiterie Keranna, Quimper', detail:'07/08/2024' },
+                  { icon:'🚛', label:'Transport Breizh Logistik', detail:'12/08/2024' },
+                  { icon:'🏪', label:'Bio Breizhmarché, Brest', detail:'14/08/2024' },
+                ].map((step, i) => (
+                  <div className="phone-step" key={i}>
+                    <div className="phone-step-dot">{step.icon}</div>
+                    <div className="phone-step-info">
+                      <span className="phone-step-label">{step.label}</span>
+                      <span className="phone-step-detail">{step.detail}</span>
+                    </div>
+                    <span className="phone-step-ok">✓</span>
+                  </div>
+                ))}
+              </div>
+              <div className="phone-score">
+                <span className="phone-score-label">Score transparence</span>
+                <span className="phone-score-val">94</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ═══════════════════════════
+     SECTION PROBLÈMES
+  ═══════════════════════════ */
+  function Problemes() {
+    const probs = [
+      {
+        title: 'Origine floue',
+        desc: 'L\'étiquette indique le pays d\'origine, rarement la région, jamais l\'exploitation. Ce que vous voyez masque ce que vous mangez réellement.',
+      },
+      {
+        title: 'Intermédiaires invisibles',
+        desc: 'Entre le producteur et votre assiette, des dizaines d\'acteurs interviennent. Transporteurs, entrepôts, transformateurs : tous invisibles.',
+      },
+      {
+        title: 'Transformation opaque',
+        desc: 'Ce produit a-t-il été congelé ? Additionné ? Mélangé à d\'autres lots ? Ces informations cruciales ne figurent nulle part sur l\'emballage.',
+      },
+      {
+        title: 'Impossible de comparer',
+        desc: 'Deux yaourts côte à côte, deux emballages similaires. Sans données de traçabilité, vous choisissez à l\'aveugle.',
+      },
+    ];
+
+    const labelItems = [
+      { icon:'✅', label:'Ferme identifiée', badge:'Visible', type:'real' },
+      { icon:'⚠️', label:'3 transporteurs impliqués', badge:'Caché', type:'hidden' },
+      { icon:'⚠️', label:'Entrepôt frigorifique (4 jours)', badge:'Caché', type:'hidden' },
+      { icon:'✅', label:'Distributeur certifié Bio', badge:'Visible', type:'real' },
+      { icon:'⚠️', label:'Lot mélangé en usine', badge:'Caché', type:'hidden' },
+    ];
+
+    return (
+      <section className="s prob-bg">
+        <div className="container">
+          <div className="prob-layout">
+            <div>
+              <p className="section-pill">🤔 Le problème</p>
+              <h2 className="st">Vous savez vraiment d'où vient ce que vous <em>mangez</em> ?</h2>
+              <p className="s-lead">
+                Ce qui figure sur l'étiquette n'est que la surface. La réalité de la chaîne alimentaire
+                reste largement inaccessible au consommateur.
+              </p>
+              <div className="prob-list">
+                {probs.map((p,i) => (
+                  <div className="prob-item" key={i}>
+                    <div className="prob-icon-wrap"><span className="prob-x">✕</span></div>
+                    <div>
+                      <h3>{p.title}</h3>
+                      <p>{p.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Visuel étiquette */}
+            <div className="prob-visual">
+              <p className="prob-visual-title">🏷 Ce que contient réellement votre étiquette</p>
+              <div className="label-stack">
+                {labelItems.map((item,i) => (
+                  <div className={`label-item ${item.type}`} key={i}>
+                    <span className="li-icon">{item.icon}</span>
+                    <span>{item.label}</span>
+                    <span className="li-badge">{item.badge}</span>
+                  </div>
+                ))}
+              </div>
+              <p style={{fontSize:'0.78rem', color:'var(--ink-3)', marginTop:'1.2rem', fontStyle:'italic'}}>
+                DataFood rend visible ce qui est actuellement caché.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     SECTION SOLUTION
+  ═══════════════════════════ */
+  function Solution() {
+    const steps = [
+      {
+        num: '01', emoji: '📱',
+        title: 'Scannez',
+        desc: 'Scannez le QR code sur l\'emballage avec votre téléphone. Aucune application à télécharger au lancement.',
+      },
+      {
+        num: '02', emoji: '🗺️',
+        title: 'Comprenez',
+        desc: 'Visualisez toute la chaîne : chaque étape, chaque acteur, chaque date. Transformations, transports, certifications.',
+      },
+      {
+        num: '03', emoji: '✅',
+        title: 'Choisissez',
+        desc: 'Comparez deux produits sur leur transparence réelle. Choisissez en connaissance de cause, pas sur la foi d\'une étiquette.',
+      },
+    ];
+    return (
+      <section id="solution" className="s">
+        <div className="container">
+          <p className="section-pill">💡 La solution</p>
+          <h2 className="st">Scannez. Comprenez.<br/><em>Choisissez.</em></h2>
+          <p className="s-lead">
+            DataFood connecte toute la chaîne alimentaire et vous en offre une lecture claire,
+            en trois secondes, directement depuis votre téléphone.
+          </p>
+          <div className="sol-steps">
+            {steps.map((s,i) => (
+              <div className="sol-card" key={i}>
+                <div className="sol-step-num">{s.num}</div>
+                <span className="sol-emoji">{s.emoji}</span>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* QR demo visuel */}
+          <div className="qr-demo">
+            <div className="qr-box">📷</div>
+            <span className="qr-arrow">→</span>
+            <div className="qr-info">
+              <h3>Vous scannez → vous voyez tout</h3>
+              <p>Producteur, transporteur, entrepôt, transformations, distributeur. Chaque étape, chaque date, chaque acteur. Sans filtre.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     SECTION BÉNÉFICES
+  ═══════════════════════════ */
+  function Benefices() {
+    const bens = [
+      {
+        cls: 'green', icon: '🔍', title: 'Transparence totale',
+        desc: 'Plus de zones d\'ombre. Vous accédez à l\'intégralité de la chaîne de production, pas seulement à l\'origine.',
+        items: ['Toutes les étapes visibles', 'Chaque acteur identifié', 'Dates et lieux certifiés'],
+      },
+      {
+        cls: 'warm', icon: '🧠', title: 'Choix éclairé',
+        desc: 'Comparez deux produits sur leur transparence réelle, et non sur leur packaging. Décidez avec les bonnes informations.',
+        items: ['Comparaison objective', 'Score de transparence', 'Alertes sur anomalies'],
+      },
+      {
+        cls: 'earth', icon: '🌍', title: 'Consommation responsable',
+        desc: 'En choisissant les chaînes transparentes, vous encouragez les pratiques vertueuses et participez à un cercle vertueux.',
+        items: ['Favoriser les filières courtes', 'Récompenser la transparence', 'Impact mesurable'],
+      },
+    ];
+    return (
+      <section className="s ben-bg">
+        <div className="container">
+          <p className="section-pill">🌱 Les bénéfices</p>
+          <h2 className="st">Manger mieux commence par <em>savoir mieux.</em></h2>
+          <p className="s-lead">
+            DataFood vous redonne le pouvoir en tant que consommateur : celui de savoir, de comprendre et de choisir.
+          </p>
+          <div className="ben-grid">
+            {bens.map((b,i) => (
+              <div className={`ben-card ${b.cls}`} key={i}>
+                <span className="ben-icon">{b.icon}</span>
+                <h3>{b.title}</h3>
+                <p>{b.desc}</p>
+                <ul className="ben-list">
+                  {b.items.map((item,j) => (
+                    <li key={j}><span className="ben-check">✓</span> {item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     CAS D'UTILISATION
+  ═══════════════════════════ */
+  function CasUsage() {
+    const cas = [
+      {
+        emoji: '🛒', tag: 'Au supermarché',
+        title: 'Vérifier avant d\'acheter',
+        desc: 'Vous hésitez entre deux jambons. Scannez les deux. En 10 secondes, vous savez lequel a la chaîne la plus transparente.',
+        steps: ['Scanner le QR', 'Comparer les chaînes', 'Choisir en confiance'],
+      },
+      {
+        emoji: '🏠', tag: 'À domicile',
+        title: 'Comprendre ce que vous avez acheté',
+        desc: 'Vous retrouvez un produit dans votre réfrigérateur et vous vous demandez d\'où il vient vraiment. Scannez et découvrez tout.',
+        steps: ['Scanner l\'emballage', 'Voir toute la chaîne', 'Partager avec proches'],
+      },
+      {
+        emoji: '🔬', tag: 'Comparaison',
+        title: 'Comparer deux produits similaires',
+        desc: 'Deux beurres "fermiers", mêmes prix. L\'un a 2 intermédiaires, l\'autre en a 7. DataFood vous dit lequel est vraiment fermier.',
+        steps: ['Scanner produit A', 'Scanner produit B', 'Comparer côte à côte'],
+      },
+    ];
+    return (
+      <section className="s">
+        <div className="container">
+          <p className="section-pill">📖 Cas d'usage</p>
+          <h2 className="st">DataFood dans votre <em>quotidien</em></h2>
+          <p className="s-lead">Trois situations concrètes où DataFood change la donne pour vous, au quotidien.</p>
+          <div className="cas-grid">
+            {cas.map((c,i) => (
+              <div className="cas-card" key={i}>
+                <div className="cas-header">
+                  <span className="cas-emoji">{c.emoji}</span>
+                  <span className="cas-tag">{c.tag}</span>
+                </div>
+                <div className="cas-body">
+                  <h3>{c.title}</h3>
+                  <p>{c.desc}</p>
+                  <div className="cas-steps">
+                    {c.steps.map((s,j) => (
+                      <div className="cas-step" key={j}>{s}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     CTA FINAL — Formulaire
+  ═══════════════════════════ */
+  function CTAFinal() {
+    const [email, setEmail] = useState('');
+    const [interest, setInterest] = useState('');
+    const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      setLoading(true);
+      console.log('[DataFood B2C] Nouvelle inscription :', { email, interest });
+      setTimeout(() => {
+        setLoading(false);
+        setSubmitted(true);
+      }, 900);
+    }
+
+    const isValid = email && interest;
+
+    return (
+      <section id="cta" className="s cta-bg">
+        <div className="cta-blob1" />
+        <div className="cta-blob2" />
+        <div className="container">
+          <div className="cta-inner">
+            {/* Texte */}
+            <div className="cta-text">
+              <p className="section-pill" style={{color:'rgba(255,255,255,0.7)'}}>🎯 Rejoindre le mouvement</p>
+              <h2>Envie de savoir ce que vous mangez <em>vraiment</em> ?</h2>
+              <p>
+                DataFood est en cours de développement. Inscrivez-vous pour être parmi
+                les premiers à accéder à l'application et participer à la bêta.
+              </p>
+              <div style={{marginTop:'2rem', display:'flex', flexDirection:'column', gap:'0.8rem'}}>
+                {[
+                  'Accès prioritaire à la bêta',
+                  'Notification au lancement',
+                  'Participer à la co-construction du produit',
+                ].map((t,i) => (
+                  <div key={i} style={{display:'flex', alignItems:'center', gap:'0.6rem', fontSize:'0.92rem', color:'rgba(255,255,255,0.8)'}}>
+                    <span style={{color:'#a8d5b5', fontWeight:700}}>✓</span> {t}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Formulaire */}
+            <div className="form-card">
+              {submitted ? (
+                <div className="form-success">
+                  <span className="success-icon">🎉</span>
+                  <h4>Vous êtes sur la liste !</h4>
+                  <p>
+                    Merci pour votre intérêt. Vous serez parmi les premiers informés
+                    du lancement de DataFood et invités à rejoindre la bêta.
+                  </p>
+                  <p style={{marginTop:'0.8rem', fontSize:'0.82rem', color:'var(--ink-3)'}}>
+                    Résultat enregistré : {interest === 'oui' ? '👍 Intéressé(e)' : '🤔 Pas sûr(e)'} · {email}
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <h3>Je veux être informé(e)</h3>
+
+                  <div className="form-group">
+                    <label htmlFor="email">Votre email *</label>
+                    <input
+                      id="email" type="email" className="form-ctrl"
+                      placeholder="vous@exemple.com"
+                      value={email} onChange={e => setEmail(e.target.value)} required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Souhaiteriez-vous utiliser ce type d'application ? *</label>
+                    <div className="radio-group">
+                      {[
+                        { value:'oui',   label:'✅ Oui, tout à fait !' },
+                        { value:'peut-etre', label:'🤔 Peut-être' },
+                        { value:'non',   label:'❌ Non, pas vraiment' },
+                      ].map(opt => (
+                        <div className="radio-opt" key={opt.value}>
+                          <input
+                            type="radio" id={opt.value} name="interest"
+                            value={opt.value} checked={interest === opt.value}
+                            onChange={() => setInterest(opt.value)}
+                          />
+                          <label className="radio-label" htmlFor={opt.value}>{opt.label}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button type="submit" className="btn-submit-b2c" disabled={!isValid || loading}>
+                    {loading ? 'Enregistrement…' : 'Je veux être informé(e) →'}
+                  </button>
+
+                  <p style={{fontSize:'0.75rem', color:'var(--ink-4)', textAlign:'center', marginTop:'0.8rem'}}>
+                    Aucun spam. Désinscription en un clic.
+                  </p>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     FOOTER
+  ═══════════════════════════ */
+  function Footer() {
+    return (
+      <footer>
+        <span className="footer-logo">Data<em>Food</em></span>
+        <div className="footer-links">
+          <a href="#" className="footer-link">B2B</a>
+          <a href="#" className="footer-link">Contact</a>
+        </div>
+        <span className="footer-copy">© 2025 DataFood — Landing page B2C · Prétotype</span>
+      </footer>
+    );
+  }
+
+  /* ═══════════════════════════
+     APP ROOT
+  ═══════════════════════════ */
+  function App() {
+    return (
+      <>
+        <Nav />
+        <Hero />
+        <div className="divider" />
+        <Problemes />
+        <div className="divider" />
+        <Solution />
+        <div className="divider" />
+        <Benefices />
+        <div className="divider" />
+        <CasUsage />
+        <CTAFinal />
+        <Footer />
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

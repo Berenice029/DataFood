@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataFood — Traçabilité agroalimentaire B2B</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+
+  <!-- React + ReactDOM UMD (no build step) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS — Industrial Precision
+    ═══════════════════════════════════════ */
+    :root {
+      --bg:        #0e110f;
+      --bg2:       #141918;
+      --bg3:       #1a201c;
+      --surface:   #1e2620;
+      --border:    rgba(255,255,255,0.07);
+      --border-em: rgba(74,158,89,0.4);
+      --green:     #4a9e59;
+      --green-l:   #6dc27e;
+      --green-dim: rgba(74,158,89,0.12);
+      --amber:     #d4933a;
+      --red:       #c94a4a;
+      --text:      #e8ede9;
+      --text-2:    #8fa492;
+      --text-3:    #5a6e5e;
+      --serif:     'Syne', sans-serif;
+      --body:      'Source Sans 3', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* Grid overlay texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(74,158,89,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74,158,89,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Grain */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 500; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E");
+    }
+
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+    @keyframes scanline { from { transform:translateY(-100%); } to { transform:translateY(100vh); } }
+    @keyframes pulse    { 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
+    @keyframes slideIn  { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
+
+    .fade-up  { animation: fadeUp  0.7s ease both; }
+    .fade-in  { animation: fadeIn  0.5s ease both; }
+    .d1 { animation-delay: 0.1s; }
+    .d2 { animation-delay: 0.22s; }
+    .d3 { animation-delay: 0.34s; }
+    .d4 { animation-delay: 0.46s; }
+    .d5 { animation-delay: 0.58s; }
+
+    /* ══════════════════════
+       NAV
+    ══════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(14,17,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-left { display: flex; align-items: center; gap: 1rem; }
+    .nav-logo { font-family: var(--serif); font-size: 1.35rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--green); }
+    .nav-tag {
+      font-family: var(--serif); font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 0.2em 0.75em; border-radius: 2em;
+      border: 1px solid var(--border-em); color: var(--green);
+    }
+    .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    .nav-status { font-size: 0.75rem; color: var(--text-2); }
+
+    /* ══════════════════════
+       HERO
+    ══════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 9rem 2rem 6rem;
+      position: relative; overflow: hidden;
+    }
+    /* Radial glow */
+    .hero-glow {
+      position: absolute; top: -10%; right: -5%;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(74,158,89,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute; bottom: -20%; left: -10%;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(74,158,89,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    /* Scanline effect */
+    .hero-scan {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .hero-scan::after {
+      content: ''; position: absolute; left: 0; right: 0;
+      height: 120px;
+      background: linear-gradient(transparent, rgba(74,158,89,0.03), transparent);
+      animation: scanline 6s linear infinite;
+    }
+
+    .hero-inner { max-width: 820px; position: relative; z-index: 2; }
+    .hero-eyebrow {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-family: var(--serif); font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--green);
+      margin-bottom: 1.8rem;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--green); }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 5.5vw, 5.2rem);
+      font-weight: 800; line-height: 1.02;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 1.8rem;
+    }
+    .hero h1 .hl { color: var(--green); position: relative; }
+
+    .hero-sub {
+      font-size: 1.15rem; font-weight: 300; color: var(--text-2);
+      max-width: 560px; margin-bottom: 2.8rem; line-height: 1.7;
+    }
+
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+
+    .btn-hero {
+      font-family: var(--serif); font-size: 0.9rem; font-weight: 700;
+      padding: 0.85em 2em; border-radius: 4px; cursor: pointer;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      transition: all 0.2s; border: none;
+    }
+    .btn-hero.primary {
+      background: var(--green); color: #fff;
+      box-shadow: 0 0 0 0 rgba(74,158,89,0.5);
+    }
+    .btn-hero.primary:hover {
+      background: var(--green-l); transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(74,158,89,0.35);
+    }
+    .btn-hero.secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border-em);
+    }
+    .btn-hero.secondary:hover { background: var(--green-dim); transform: translateY(-2px); }
+
+    /* Stats bar */
+    .hero-stats {
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .stat-item { }
+    .stat-num { font-family: var(--serif); font-size: 1.8rem; font-weight: 800; color: var(--green); display: block; }
+    .stat-label { font-size: 0.8rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ══════════════════════
+       SECTION BASE
+    ══════════════════════ */
+    section { padding: 5.5rem 0; position: relative; z-index: 1; }
+    section + section { border-top: 1px solid var(--border); }
+
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--serif); font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 1.2rem;
+    }
+    .section-tag::before { content: ''; display: block; width: 16px; height: 1px; background: var(--green); }
+
+    h2.section-title {
+      font-family: var(--serif);
+      font-size: clamp(1.9rem, 3.5vw, 3rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -0.025em;
+      color: var(--text); margin-bottom: 1rem;
+    }
+    .section-lead {
+      font-size: 1.05rem; font-weight: 300; color: var(--text-2);
+      max-width: 580px; margin-bottom: 3rem;
+    }
+
+    /* ══════════════════════
+       SECTION PROBLÈMES
+    ══════════════════════ */
+    #problemes { background: var(--bg2); }
+    .prob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    @media(max-width:680px){ .prob-grid { grid-template-columns: 1fr; } }
+    .prob-item {
+      display: flex; align-items: flex-start; gap: 1.2rem;
+      padding: 1.8rem;
+      background: var(--surface);
+      transition: background 0.2s;
+    }
+    .prob-item:hover { background: var(--bg3); }
+    .prob-x {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(201,74,74,0.12); border: 1px solid rgba(201,74,74,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; color: var(--red); font-weight: 700; margin-top: 2px;
+    }
+    .prob-text h3 { font-family: var(--serif); font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+    .prob-text p  { font-size: 0.88rem; font-weight: 300; color: var(--text-2); }
+
+    /* ══════════════════════
+       SECTION SOLUTION
+    ══════════════════════ */
+    #solution { background: var(--bg); }
+    .sol-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    @media(max-width:800px){ .sol-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:480px){ .sol-grid { grid-template-columns: 1fr; } }
+    .sol-card {
+      padding: 2rem 1.6rem;
+      background: var(--surface);
+      position: relative; overflow: hidden;
+      transition: background 0.2s;
+    }
+    .sol-card:hover { background: var(--bg3); }
+    .sol-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--green), transparent);
+    }
+    .sol-icon { font-size: 1.8rem; margin-bottom: 1rem; display: block; }
+    .sol-card h3 { font-family: var(--serif); font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+    .sol-card p  { font-size: 0.82rem; font-weight: 300; color: var(--text-2); line-height: 1.6; }
+    .sol-num { position: absolute; top: 1rem; right: 1.2rem; font-family: var(--serif); font-size: 2.5rem; font-weight: 800; color: rgba(74,158,89,0.07); line-height: 1; }
+
+    /* ══════════════════════
+       SECTION BÉNÉFICES
+    ══════════════════════ */
+    #benefices { background: var(--bg2); }
+    .ben-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    @media(max-width:700px){ .ben-grid { grid-template-columns: 1fr; } }
+    .ben-card {
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 2rem 1.8rem;
+      background: var(--surface);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .ben-card:hover { border-color: var(--border-em); transform: translateY(-3px); }
+    .ben-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.4rem; }
+    .ben-badge {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      background: var(--green-dim); border: 1px solid var(--border-em);
+    }
+    .ben-card h3 { font-family: var(--serif); font-size: 1rem; font-weight: 700; color: var(--text); }
+    .ben-list { list-style: none; }
+    .ben-list li {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      font-size: 0.88rem; font-weight: 300; color: var(--text-2);
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ben-list li:last-child { border-bottom: none; }
+    .ben-check { color: var(--green); font-size: 0.85rem; margin-top: 2px; flex-shrink: 0; }
+
+    /* ══════════════════════
+       SECTION CAS D'USAGE
+    ══════════════════════ */
+    #cas { background: var(--bg); }
+    .cas-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .cas-item {
+      display: grid; grid-template-columns: 80px 1fr;
+      background: var(--surface); transition: background 0.2s;
+    }
+    .cas-item:hover { background: var(--bg3); }
+    .cas-num {
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 2.5rem; font-weight: 800;
+      color: rgba(74,158,89,0.15);
+      border-right: 1px solid var(--border);
+    }
+    .cas-body { padding: 2rem; }
+    .cas-tag {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 0.2em 0.75em; border-radius: 2em;
+      background: var(--green-dim); color: var(--green); border: 1px solid var(--border-em);
+      margin-bottom: 0.8rem;
+    }
+    .cas-body h3 { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 0.6rem; }
+    .cas-body p  { font-size: 0.9rem; font-weight: 300; color: var(--text-2); max-width: 640px; }
+    .cas-flow {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-top: 0.8rem; flex-wrap: wrap;
+    }
+    .cas-step {
+      font-size: 0.8rem; font-weight: 600;
+      padding: 0.25em 0.75em; border-radius: 2em;
+      background: var(--bg); border: 1px solid var(--border); color: var(--text-2);
+    }
+    .cas-arrow { color: var(--green); font-size: 0.8rem; }
+
+    /* ══════════════════════
+       SECTION CTA FINAL
+    ══════════════════════ */
+    #cta { background: var(--bg2); }
+    .cta-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
+    }
+    @media(max-width:740px){ .cta-inner { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+    .cta-left h2 { font-family: var(--serif); font-size: clamp(1.8rem,3vw,2.6rem); font-weight: 800; letter-spacing: -0.025em; margin-bottom: 1rem; }
+    .cta-left p  { font-size: 1rem; font-weight: 300; color: var(--text-2); margin-bottom: 2rem; }
+    .cta-badges { display: flex; flex-direction: column; gap: 0.7rem; }
+    .cta-badge {
+      display: flex; align-items: center; gap: 0.8rem;
+      font-size: 0.9rem; font-weight: 300; color: var(--text-2);
+    }
+    .cta-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    /* Form */
+    .form-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 2.2rem;
+    }
+    .form-wrap h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); margin-bottom: 0.45rem; }
+    .form-control {
+      width: 100%; padding: 0.75em 1em;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text);
+      font-family: var(--body); font-size: 0.92rem;
+      outline: none; transition: border-color 0.2s;
+      appearance: none;
+    }
+    .form-control:focus { border-color: var(--green); }
+    .form-control::placeholder { color: var(--text-3); }
+    select.form-control { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6e5e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 1rem center; padding-right:2.5rem; }
+    textarea.form-control { resize: vertical; min-height: 90px; }
+    .btn-submit {
+      width: 100%; padding: 0.9em;
+      background: var(--green); color: #fff;
+      border: none; border-radius: 4px;
+      font-family: var(--serif); font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      cursor: pointer; margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-submit:hover { background: var(--green-l); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(74,158,89,0.3); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Success state */
+    .form-success {
+      text-align: center; padding: 2rem 1rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    .form-success .success-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .form-success h4 { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .form-success p { font-size: 0.9rem; color: var(--text-2); font-weight: 300; }
+
+    /* ══════════════════════
+       FOOTER
+    ══════════════════════ */
+    footer {
+      background: var(--bg); border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      position: relative; z-index: 1;
+    }
+    .footer-logo { font-family: var(--serif); font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .footer-logo span { color: var(--green); }
+    .footer-copy { font-size: 0.8rem; color: var(--text-3); }
+    .footer-tag { font-size: 0.75rem; color: var(--text-3); font-style: italic; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState, useEffect, useRef } = React;
+
+  /* ═══════════════════════════
+     Composant : Nav
+  ═══════════════════════════ */
+  function Nav() {
+    const [scrolled, setScrolled] = useState(false);
+    useEffect(() => {
+      const handler = () => setScrolled(window.scrollY > 30);
+      window.addEventListener('scroll', handler);
+      return () => window.removeEventListener('scroll', handler);
+    }, []);
+    return (
+      <nav style={scrolled ? {boxShadow:'0 4px 32px rgba(0,0,0,0.4)'} : {}}>
+        <div className="nav-left">
+          <span className="nav-logo">Data<span>Food</span></span>
+          <span className="nav-tag">B2B</span>
+        </div>
+        <div style={{display:'flex', alignItems:'center', gap:'0.6rem'}}>
+          <span className="nav-dot"/>
+          <span className="nav-status">Programme pilote ouvert</span>
+        </div>
+      </nav>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Hero
+  ═══════════════════════════ */
+  function Hero() {
+    function scrollToCta() {
+      document.getElementById('cta')?.scrollIntoView({ behavior:'smooth' });
+    }
+    return (
+      <section className="hero">
+        <div className="hero-glow" />
+        <div className="hero-glow2" />
+        <div className="hero-scan" />
+        <div className="container">
+          <div className="hero-inner">
+            <p className="hero-eyebrow fade-up d1">
+              Solution de traçabilité agroalimentaire
+            </p>
+            <h1 className="fade-up d2">
+              Contrôlez toute votre chaîne agroalimentaire{' '}
+              <span className="hl">intermédiaire</span>{' '}
+              en un seul endroit.
+            </h1>
+            <p className="hero-sub fade-up d3">
+              DataFood centralise les données de production, transformation et distribution
+              pour une traçabilité précise, exploitable et intégrable à vos systèmes existants.
+            </p>
+            <div className="hero-cta fade-up d4">
+              <button className="btn-hero primary" onClick={scrollToCta}>
+                Demander une démo
+              </button>
+              <button className="btn-hero secondary" onClick={scrollToCta}>
+                Être pilote partenaire
+              </button>
+            </div>
+            {/* Stats de contexte */}
+            <div className="hero-stats fade-up d5">
+              {[
+                { num:'68%', label:'Des rappels produits auraient pu être évités' },
+                { num:'3,5×', label:'Plus de coût sans traçabilité granulaire' },
+                { num:'< 1j', label:'Délai de réponse visé en cas de crise' },
+              ].map((s,i) => (
+                <div className="stat-item" key={i}>
+                  <span className="stat-num">{s.num}</span>
+                  <span className="stat-label">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Problèmes
+  ═══════════════════════════ */
+  function Problemes() {
+    const items = [
+      {
+        title: 'Données éparpillées',
+        desc: 'ERP, Excel, papier, e-mails… Vos données de traçabilité sont fragmentées entre des dizaines de systèmes non interopérables.',
+      },
+      {
+        title: 'Identification imprécise des lots',
+        desc: 'Impossible de cibler un lot précis sans interroger manuellement chaque intermédiaire. La granularité manque cruellement.',
+      },
+      {
+        title: 'Destruction massive et inutile',
+        desc: 'Faute de traçabilité fine, un incident entraîne le retrait de volumes entiers. Des pertes financières évitables.',
+      },
+      {
+        title: 'Temps perdu en recherche d\'information',
+        desc: 'Retrouver un intermédiaire, une date de passage, un responsable de lot : des heures perdues dans une urgence.',
+      },
+      {
+        title: 'Manque de visibilité intermédiaire',
+        desc: 'Entre le producteur et le distributeur final, les étapes sont une boîte noire. Personne n\'a de vue globale.',
+      },
+      {
+        title: 'Risque réglementaire croissant',
+        desc: 'Les exigences de traçabilité (EU 2023/2006, FSMA…) se durcissent. L\'absence d\'outillage expose vos équipes.',
+      },
+    ];
+    return (
+      <section id="problemes">
+        <div className="container">
+          <p className="section-tag">Le problème</p>
+          <h2 className="section-title">Vos données sont-elles vraiment<br/>exploitables en cas de crise ?</h2>
+          <p className="section-lead">
+            La grande majorité des acteurs agroalimentaires ne disposent pas d'une traçabilité
+            suffisamment granulaire pour réagir vite. Reconnaissez-vous ces situations ?
+          </p>
+          <div className="prob-grid">
+            {items.map((item, i) => (
+              <div className="prob-item" key={i} style={{animationDelay:`${i*0.07}s`}}>
+                <div className="prob-x">✕</div>
+                <div className="prob-text">
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Solution
+  ═══════════════════════════ */
+  function Solution() {
+    const cards = [
+      {
+        icon: '📋',
+        title: 'Protocole de spécification',
+        desc: 'Un standard ouvert et commun pour décrire chaque donnée de la chaîne de production, compatible avec vos formats existants.',
+      },
+      {
+        icon: '🗄️',
+        title: 'Centralisation sécurisée',
+        desc: 'Toutes les étapes — production, transformation, transport, conditionnement — agrégées dans une base unique et auditée.',
+      },
+      {
+        icon: '🔄',
+        title: 'Migration simplifiée',
+        desc: 'Un protocole d\'intégration pour migrer et synchroniser vos bases locales vers la base DataFood, sans rupture opérationnelle.',
+      },
+      {
+        icon: '🔌',
+        title: 'API intégrable',
+        desc: 'Une API standard pour exposer les données à vos systèmes tiers, applications d\'audit, ou interfaces consommateurs.',
+      },
+    ];
+    return (
+      <section id="solution">
+        <div className="container">
+          <p className="section-tag">La solution</p>
+          <h2 className="section-title">Un protocole standard<br/>+ une base centralisée + une API.</h2>
+          <p className="section-lead">
+            DataFood ne remplace pas vos outils. Il les connecte et standardise ce qu'ils produisent,
+            pour créer enfin une vue unifiée de votre chaîne.
+          </p>
+          <div className="sol-grid">
+            {cards.map((c, i) => (
+              <div className="sol-card" key={i}>
+                <span className="sol-num">{String(i+1).padStart(2,'0')}</span>
+                <span className="sol-icon">{c.icon}</span>
+                <h3>{c.title}</h3>
+                <p>{c.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Bénéfices
+  ═══════════════════════════ */
+  function Benefices() {
+    const cols = [
+      {
+        icon: '🎯', title: 'Opérationnels',
+        items: [
+          'Identification précise d\'un lot en quelques secondes',
+          'Réactivité maximale en cas de crise sanitaire',
+          'Réduction des destructions de produits',
+          'Vue en temps réel sur les étapes intermédiaires',
+        ]
+      },
+      {
+        icon: '💰', title: 'Économiques',
+        items: [
+          'Moins de destructions massives et inutiles',
+          'Réduction des coûts de recherche d\'information',
+          'Gain de temps administratif mesurable',
+          'Diminution du risque de pénalités réglementaires',
+        ]
+      },
+      {
+        icon: '📈', title: 'Stratégiques',
+        items: [
+          'Transparence valorisable auprès des partenaires',
+          'Avantage concurrentiel différenciant',
+          'Conformité réglementaire facilitée',
+          'Données exploitables pour l\'amélioration continue',
+        ]
+      },
+    ];
+    return (
+      <section id="benefices">
+        <div className="container">
+          <p className="section-tag">Les bénéfices</p>
+          <h2 className="section-title">Un retour sur investissement<br/>à trois niveaux.</h2>
+          <p className="section-lead">
+            DataFood génère de la valeur immédiatement sur le terrain, et stratégiquement sur le long terme.
+          </p>
+          <div className="ben-grid">
+            {cols.map((col, i) => (
+              <div className="ben-card" key={i}>
+                <div className="ben-header">
+                  <div className="ben-badge">{col.icon}</div>
+                  <h3>{col.title}</h3>
+                </div>
+                <ul className="ben-list">
+                  {col.items.map((item, j) => (
+                    <li key={j}>
+                      <span className="ben-check">✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Cas d'utilisation
+  ═══════════════════════════ */
+  function CasUsage() {
+    const cas = [
+      {
+        tag: '🦠 Contamination ciblée',
+        title: 'Isoler un lot sans détruire toute la production',
+        desc: 'Un lot de transformation est identifié comme contaminé. Avec DataFood, vous remontez précisément à l\'origine et isolez uniquement les références concernées — pas l\'ensemble du stock.',
+        flow: ['Alerte', 'Recherche dans DataFood', 'Identification du lot précis', 'Isolation ciblée', 'Coût minimisé'],
+      },
+      {
+        tag: '📦 Audit qualité',
+        title: 'Prouver la traçabilité complète à un partenaire ou auditeur',
+        desc: 'Un distributeur ou un organisme de certification exige la preuve de la chaîne complète. Vous exportez instantanément l\'historique structuré de chaque étape, sans appels ni recherches manuelles.',
+        flow: ['Demande d\'audit', 'Export DataFood', 'Rapport complet fourni', 'Certification obtenue'],
+      },
+      {
+        tag: '🏷 Différenciation marketing',
+        title: 'Valoriser la transparence auprès de vos clients',
+        desc: 'Exposez la traçabilité de vos produits directement à vos clients finaux via QR code ou interface consommateur, alimentée par l\'API DataFood. Un argument de vente fort et vérifiable.',
+        flow: ['QR sur emballage', 'API DataFood', 'Interface consommateur', 'Confiance & fidélisation'],
+      },
+    ];
+    return (
+      <section id="cas">
+        <div className="container">
+          <p className="section-tag">Cas d'utilisation</p>
+          <h2 className="section-title">Trois situations concrètes<br/>où DataFood fait la différence.</h2>
+          <p className="section-lead">
+            De la gestion de crise à la valorisation commerciale, la traçabilité granulaire ouvre de nouveaux possibles.
+          </p>
+          <div className="cas-list">
+            {cas.map((c, i) => (
+              <div className="cas-item" key={i}>
+                <div className="cas-num">{String(i+1).padStart(2,'0')}</div>
+                <div className="cas-body">
+                  <span className="cas-tag">{c.tag}</span>
+                  <h3>{c.title}</h3>
+                  <p>{c.desc}</p>
+                  <div className="cas-flow">
+                    {c.flow.map((f, j) => (
+                      <React.Fragment key={j}>
+                        <span className="cas-step">{f}</span>
+                        {j < c.flow.length - 1 && <span className="cas-arrow">→</span>}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Formulaire CTA
+  ═══════════════════════════ */
+  function FormulaireCTA() {
+    const [form, setForm] = useState({ entreprise:'', email:'', taille:'', probleme:'' });
+    const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    function handleChange(e) {
+      setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      setLoading(true);
+      // Simulation de soumission
+      console.log('[DataFood] Nouvelle demande de contact:', form);
+      setTimeout(() => {
+        setLoading(false);
+        setSubmitted(true);
+      }, 1000);
+    }
+
+    const isValid = form.entreprise && form.email && form.taille;
+
+    return (
+      <section id="cta">
+        <div className="container">
+          <div className="cta-inner">
+            {/* Gauche — argumentaire */}
+            <div className="cta-left">
+              <p className="section-tag">Rejoindre le programme</p>
+              <h2>Prêt à transformer votre traçabilité ?</h2>
+              <p>
+                Nous recherchons des partenaires pilotes pour tester DataFood en conditions réelles.
+                Participez à la construction du standard de demain.
+              </p>
+              <div className="cta-badges">
+                {[
+                  'Tester DataFood en avant-première',
+                  'Recevoir le protocole de spécification',
+                  'Participer au programme pilote',
+                  'Être recontacté par notre équipe',
+                ].map((b,i) => (
+                  <div className="cta-badge" key={i}>
+                    <span className="cta-badge-dot" />
+                    <span>{b}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Droite — formulaire */}
+            <div className="form-wrap">
+              {submitted ? (
+                <div className="form-success">
+                  <div className="success-icon">✅</div>
+                  <h4>Demande enregistrée !</h4>
+                  <p>
+                    Merci pour votre intérêt. Notre équipe vous contactera sous 48h
+                    pour organiser un premier échange.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <h3>Je souhaite être recontacté</h3>
+
+                  <div className="form-group">
+                    <label htmlFor="entreprise">Nom de l'entreprise *</label>
+                    <input id="entreprise" name="entreprise" type="text" className="form-control"
+                      placeholder="Ex : Groupe Lactalis" value={form.entreprise} onChange={handleChange} required />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="email">Email professionnel *</label>
+                    <input id="email" name="email" type="email" className="form-control"
+                      placeholder="vous@entreprise.com" value={form.email} onChange={handleChange} required />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="taille">Taille de l'entreprise *</label>
+                    <select id="taille" name="taille" className="form-control" value={form.taille} onChange={handleChange} required>
+                      <option value="">Sélectionner…</option>
+                      <option value="tpe">TPE — moins de 10 salariés</option>
+                      <option value="pme">PME — 10 à 250 salariés</option>
+                      <option value="eti">ETI — 250 à 5 000 salariés</option>
+                      <option value="ge">Grande entreprise — +5 000 salariés</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="probleme">Votre principal défi de traçabilité</label>
+                    <textarea id="probleme" name="probleme" className="form-control"
+                      placeholder="Décrivez en quelques mots votre situation actuelle…"
+                      value={form.probleme} onChange={handleChange} />
+                  </div>
+
+                  <button type="submit" className="btn-submit" disabled={!isValid || loading}>
+                    {loading ? 'Envoi en cours…' : 'Je souhaite être recontacté →'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
+     Composant : Footer
+  ═══════════════════════════ */
+  function Footer() {
+    return (
+      <footer>
+        <div className="footer-logo">Data<span>Food</span></div>
+        <span className="footer-tag">Landing page B2B — Prétotype</span>
+        <span className="footer-copy">© 2025 DataFood — Solution de traçabilité agroalimentaire</span>
+      </footer>
+    );
+  }
+
+  /* ═══════════════════════════
+     App root
+  ═══════════════════════════ */
+  function App() {
+    return (
+      <>
+        <Nav />
+        <Hero />
+        <Problemes />
+        <Solution />
+        <Benefices />
+        <CasUsage />
+        <FormulaireCTA />
+        <Footer />
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
