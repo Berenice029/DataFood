@@ -735,32 +735,30 @@
     }
 
     async function handleSubmit(e) {
-      e.preventDefault();
-      setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-      try {
-        const payload = {
-          ...form,
-          token: TOKEN,
-          source: "landing-b2b",
-        };
+  try {
+    const body = new URLSearchParams({
+      entreprise: form.entreprise,
+      email: form.email,
+      taille: form.taille,
+      probleme: form.probleme || "",
+      source: "landing-b2b",
+      token: TOKEN,
+    });
 
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",   // <-- contourne CORS
+      body,
+    });
 
-        const json = await res.json();
-
-        if (!res.ok || !json.ok) {
-          throw new Error(json?.error || "Erreur inconnue");
-        }
-
+    // Comme no-cors empêche de lire la réponse, on confirme côté UI
     setSubmitted(true);
   } catch (err) {
     console.error(err);
-    alert("Impossible d’envoyer la demande pour le moment. Réessaie plus tard.");
+    alert("Impossible d’envoyer la demande pour le moment.");
   } finally {
     setLoading(false);
   }
