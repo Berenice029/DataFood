@@ -2,7 +2,7 @@
 Landing page (ou page d'atterissage) du projet **DataFood**.
 
 ##  Description
-Répertoire visant à réaliser une landing page (ou page d'atterissage) pour la promotion de notre projet de base de données "DataFood".  Cette base de données vise à offrir un accès à l'entièreté de la supply-chain (ou chaîne de production) des produits alimentaires. 
+Répertoire visant à réaliser une landing page (ou page d'atterissage) pour la promotion de notre projet de base de données "DataFood".  Cette base de données vise à offrir un accès à l'entièreté de la supply-chain (ou chaîne de production) des produits alimentaires.
 
 ##  Objectifs
 L’objectif de cette landing page est de :
@@ -15,6 +15,7 @@ L’objectif de cette landing page est de :
 - HTML
 - CSS
 - JavaScript
+- React
 
 ##  Structure du projet
 
@@ -22,12 +23,9 @@ L’objectif de cette landing page est de :
 DataFood/
 │
 ├── index.html
-├── style.css
-├── script.js
+├── landing_page_B2B.html
+├── landing_page_B2C.html
 │
-└── assets/
-    ├── images/
-    └── icons/
 └── README.md
 ```
 
@@ -40,8 +38,8 @@ https://berenice029.github.io/DataFood/
 
 Projet réalisé par :
 - Bérénice Cardoso-Faucher
-- Marie-Stella Nyako
-- Olivia ?
-- David Aimé
-- Rachid Junior
-- Christ-roi Seya
+- Marie-Stella Nyarko
+- Olivia Assemien
+- David Aimé Assohoun
+- Rachid Junior Kouassi
+- Christ-Roi Seya
