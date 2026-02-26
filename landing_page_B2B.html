@@ -739,18 +739,19 @@
         setLoading(true);
 
         try {
-            const params = new URLSearchParams({
-                entreprise: form.entreprise,
-                email: form.email,
-                taille: form.taille,
-                probleme: form.probleme || "",
-                source: "landing-b2b",
-                token: TOKEN,
+            const body = new URLSearchParams({
+            entreprise: form.entreprise,
+            email: form.email,
+            taille: form.taille,
+            probleme: form.probleme || "",
+            source: "landing-b2b",
+            token: TOKEN,
             });
 
-            await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
-                method: "GET",
-                mode: "no-cors",
+            await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",   // <-- contourne CORS
+            body,
             });
 
             // Comme no-cors empêche de lire la réponse, on confirme côté UI
