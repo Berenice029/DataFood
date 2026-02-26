@@ -417,6 +417,8 @@
 
 <script type="text/babel">
   const { useState, useEffect, useRef } = React;
+  const APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrTAZ03ECN8X7vNrrgb-jaFeJ6RzIOLd4u6pIxtjgAsVv6_rQRJgfPw1g7RC3oG25uy3Bs-wckWBUoiDRNuvI7txDhrlLbZMlSASnbblgTU8u7VoVVfWfjLJRg2KKp3aldxk8wAf8KDvnzGoZfc1WLilHdDgVbGipJ37hSyY4qcmDdPlAPFS1kTwNB00YoFx-sM5FTcIZGYcvnvjkCBPeJa_Bf4h8E-B4qcmt6msUXxUOyJwvcVpymu4bX4AffEkjDHAnoB83-PHZpVtmh3fE5YmC43YgQ&lib=MGiREL5jv-1D3FKcFdtEJsNUxI5FlYOV2"
+  const TOKEN = "CHANGE-ME-SECRET"; // même valeur que dans Apps Script
 
   /* ═══════════════════════════
      Composant : Nav
@@ -732,16 +734,37 @@
       setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
       e.preventDefault();
       setLoading(true);
-      // Simulation de soumission
-      console.log('[DataFood] Nouvelle demande de contact:', form);
-      setTimeout(() => {
-        setLoading(false);
-        setSubmitted(true);
-      }, 1000);
-    }
+
+      try {
+        const payload = {
+          ...form,
+          token: TOKEN,
+          source: "landing-b2b",
+        };
+
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok || !json.ok) {
+          throw new Error(json?.error || "Erreur inconnue");
+        }
+
+    setSubmitted(true);
+  } catch (err) {
+    console.error(err);
+    alert("Impossible d’envoyer la demande pour le moment. Réessaie plus tard.");
+  } finally {
+    setLoading(false);
+  }
+}
 
     const isValid = form.entreprise && form.email && form.taille;
 
