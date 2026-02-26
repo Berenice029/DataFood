@@ -522,6 +522,8 @@
 
 <script type="text/babel">
   const { useState, useEffect } = React;
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxS1SnkXG_8ZqcT_AlG_QXn_FHe0hUfYgGWT_ZV67lvF1_aEk_W2u8bAq9WoUqDJ4TA/exec";
+  const TOKEN = "CHANGE-ME-SECRET"; 
 
   /* ═══════════════════════════
      NAV
@@ -878,14 +880,33 @@
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    function handleSubmit(e) {
-      e.preventDefault();
-      setLoading(true);
-      console.log('[DataFood B2C] Nouvelle inscription :', { email, interest });
-      setTimeout(() => {
-        setLoading(false);
-        setSubmitted(true);
-      }, 900);
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const body = new URLSearchParams({
+            entreprise:"Consommateur final",
+            email: form.email,
+            probleme: form.interest || "",
+            source: "landing-b2c",
+            token: TOKEN,
+            });
+
+            await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",   // <-- contourne CORS
+            body,
+            });
+
+            // Comme no-cors empêche de lire la réponse, on confirme côté UI
+            setSubmitted(true);
+        } catch (err) {
+            console.error(err);
+            alert("Impossible d’envoyer la demande pour le moment.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     const isValid = email && interest;
