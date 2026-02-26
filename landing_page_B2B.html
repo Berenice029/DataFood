@@ -417,7 +417,8 @@
 
 <script type="text/babel">
   const { useState, useEffect, useRef } = React;
-  const APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrTAZ03ECN8X7vNrrgb-jaFeJ6RzIOLd4u6pIxtjgAsVv6_rQRJgfPw1g7RC3oG25uy3Bs-wckWBUoiDRNuvI7txDhrlLbZMlSASnbblgTU8u7VoVVfWfjLJRg2KKp3aldxk8wAf8KDvnzGoZfc1WLilHdDgVbGipJ37hSyY4qcmDdPlAPFS1kTwNB00YoFx-sM5FTcIZGYcvnvjkCBPeJa_Bf4h8E-B4qcmt6msUXxUOyJwvcVpymu4bX4AffEkjDHAnoB83-PHZpVtmh3fE5YmC43YgQ&lib=MGiREL5jv-1D3FKcFdtEJsNUxI5FlYOV2"
+  const [error, setError] = useState("");
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLoUKZw6mV3jNYUwikEm55P_GM7qEHRbZPXu3nLHtNqPkH-hw0qZYv2JOrD2FqTspj/exec"
   const TOKEN = "CHANGE-ME-SECRET"; // même valeur que dans Apps Script
 
   /* ═══════════════════════════
@@ -737,8 +738,15 @@
     async function handleSubmit(e) {
   e.preventDefault();
   setLoading(true);
+  setError("");
 
   try {
+    // mini validation côté client
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+    if (!emailOk) {
+      setError("Merci d’indiquer un email valide.");
+      return;
+    }
     const body = new URLSearchParams({
       entreprise: form.entreprise,
       email: form.email,
