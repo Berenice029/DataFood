@@ -222,6 +222,46 @@
     }
     .phone-score-label { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85); }
     .phone-score-val   { font-family: var(--serif); font-size: 1.5rem; font-weight: 900; color: #fff; }
+    /* Boutons dans le téléphone (optionnels) */
+    .phone-actions{
+      margin-top: 0.75rem;
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .phone-btn{
+      flex: 1;
+      border-radius: 999px;
+      padding: 0.55em 0.7em;
+      font-family: var(--body);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .phone-btn.primary{
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(46,125,79,0.25);
+    }
+
+    .phone-btn.primary:hover{
+      background: var(--green-m);
+      transform: translateY(-1px);
+    }
+
+    .phone-btn.ghost{
+      background: transparent;
+      color: var(--green);
+      border-color: var(--green-l);
+    }
+
+    .phone-btn.ghost:hover{
+      background: var(--green-xxl);
+      transform: translateY(-1px);
+    }
 
     /* Decorative blobs */
     .blob {
@@ -333,13 +373,36 @@
     .sol-card p  { font-size: 0.88rem; font-weight: 300; color: var(--ink-2); line-height: 1.65; }
 
     /* QR demo visual */
-    .qr-demo {
-      margin: 3rem auto 0; max-width: 560px;
-      background: var(--white); border-radius: var(--r-l);
-      border: 1px solid var(--bg3); padding: 2rem;
-      display: flex; align-items: center; gap: 1.5rem;
-      box-shadow: var(--shadow); flex-wrap: wrap;
+    .qr-demo{
+      margin: 3rem auto 0;
+      max-width: 980px;            /* <-- plus large */
+      background: var(--white);
+      border-radius: var(--r-l);
+      border: 1px solid var(--bg3);
+      padding: 2rem;
+      display: grid;               /* <-- grid au lieu de flex */
+      grid-template-columns: 90px 40px 1fr; /* scan | flèche | contenu */
+      gap: 1.5rem;
+      align-items: start;
+      box-shadow: var(--shadow);
     }
+
+    /* IMPORTANT : sur mobile, on repasse en colonne */
+    @media (max-width: 760px){
+      .qr-demo{
+        grid-template-columns: 1fr;
+      }
+      .qr-arrow{
+        display: none; /* optionnel: cache la flèche sur mobile */
+      }
+    }
+
+    .qr-info{
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
     .qr-box {
       width: 90px; height: 90px; flex-shrink: 0;
       background: var(--ink); border-radius: 8px;
@@ -353,7 +416,7 @@
       overflow: hidden;
     }
 
-    /* Cadre “scan” */
+        /* Cadre “scan” */
     .qr-box.qr-scan::before{
       content:"";
       position:absolute;
@@ -362,7 +425,7 @@
       border: 2px solid rgba(46,125,79,0.9);
     }
 
-    /* Ligne qui balaie */
+       /* Ligne qui balaie */
     .qr-box.qr-scan .scan-line{
       position:absolute;
       left:10px;
@@ -374,7 +437,7 @@
       animation: scanMove 1.6s ease-in-out infinite;
     }
 
-    /* Animation verticale */
+       /* Animation verticale */
     @keyframes scanMove{
       0%{ top:14px; opacity:0.8; }
       50%{ top:74px; opacity:1; }
@@ -591,6 +654,71 @@
   /* ═══════════════════════════
      HERO
   ═══════════════════════════ */
+  function PhoneMockup({ showActions = false }) {
+    function goDetails() {
+      document.getElementById('cta')?.scrollIntoView({ behavior:'smooth' });
+    }
+
+    function goMap() {
+      alert("Voir la carte : à brancher (section ou modal) 🙂");
+    }
+
+    return (
+      <div className="phone-mock">
+        <span className="phone-notch"/>
+        <div className="phone-header">
+          <span className="phone-back">‹ Scanner</span>
+        </div>
+
+        <div className="phone-product">
+          <span className="phone-product-icon">🧈</span>
+          <div>
+            <div className="phone-product-name">Beurre AOP Finistère</div>
+            <div className="phone-product-lot">LOT-2024-08-FR442</div>
+          </div>
+        </div>
+
+        <p style={{fontSize:'0.68rem', fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:'0.5rem'}}>
+          Chaîne de traçabilité
+        </p>
+
+        <div className="phone-steps">
+          {[
+            { icon:'🐄', label:'Ferme des Abers, Lesneven', detail:'05/08/2024' },
+            { icon:'🏭', label:'Laiterie Keranna, Quimper', detail:'07/08/2024' },
+            { icon:'🚛', label:'Transport Breizh Logistik', detail:'12/08/2024' },
+            { icon:'🏪', label:'Bio Breizhmarché, Brest', detail:'14/08/2024' },
+          ].map((step, i) => (
+            <div className="phone-step" key={i}>
+              <div className="phone-step-dot">{step.icon}</div>
+              <div className="phone-step-info">
+                <span className="phone-step-label">{step.label}</span>
+                <span className="phone-step-detail">{step.detail}</span>
+              </div>
+              <span className="phone-step-ok">✓</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="phone-score">
+          <span className="phone-score-label">Score transparence</span>
+          <span className="phone-score-val">94</span>
+        </div>
+
+        {showActions && (
+          <div className="phone-actions">
+            <button type="button" className="phone-btn primary" onClick={goDetails}>
+              Plus de détails
+            </button>
+            <button type="button" className="phone-btn ghost" onClick={goMap}>
+              Voir la carte
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function Hero() {
     function scrollToForm() {
       document.getElementById('cta')?.scrollIntoView({ behavior:'smooth' });
@@ -636,41 +764,7 @@
 
           {/* Maquette téléphone droite */}
           <div className="hero-right fade-up d3">
-            <div className="phone-mock">
-              <span className="phone-notch"/>
-              <div className="phone-header">
-                <span className="phone-back">‹ Scanner</span>
-              </div>
-              <div className="phone-product">
-                <span className="phone-product-icon">🧈</span>
-                <div>
-                  <div className="phone-product-name">Beurre AOP Finistère</div>
-                  <div className="phone-product-lot">LOT-2024-08-FR442</div>
-                </div>
-              </div>
-              <p style={{fontSize:'0.68rem', fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:'0.5rem'}}>Chaîne de traçabilité</p>
-              <div className="phone-steps">
-                {[
-                  { icon:'🐄', label:'Ferme des Abers, Lesneven', detail:'05/08/2024' },
-                  { icon:'🏭', label:'Laiterie Keranna, Quimper', detail:'07/08/2024' },
-                  { icon:'🚛', label:'Transport Breizh Logistik', detail:'12/08/2024' },
-                  { icon:'🏪', label:'Bio Breizhmarché, Brest', detail:'14/08/2024' },
-                ].map((step, i) => (
-                  <div className="phone-step" key={i}>
-                    <div className="phone-step-dot">{step.icon}</div>
-                    <div className="phone-step-info">
-                      <span className="phone-step-label">{step.label}</span>
-                      <span className="phone-step-detail">{step.detail}</span>
-                    </div>
-                    <span className="phone-step-ok">✓</span>
-                  </div>
-                ))}
-              </div>
-              <div className="phone-score">
-                <span className="phone-score-label">Score transparence</span>
-                <span className="phone-score-val">94</span>
-              </div>
-            </div>
+            <PhoneMockup />
           </div>
         </div>
       </div>
@@ -803,7 +897,11 @@
             <span className="qr-arrow">→</span>
             <div className="qr-info">
               <h3>Vous scannez → vous voyez tout</h3>
-              <p>Producteur, transporteur, entrepôt, transformations, distributeur. Chaque étape, chaque date, chaque acteur. Sans filtre.</p>
+              <p>Un écran clair, avec chaque étape et un score de transparence.</p>
+
+              <div style={{ marginTop: '1.2rem' }}>
+                <PhoneMockup showActions={true} />
+              </div>
             </div>
           </div>
         </div>
