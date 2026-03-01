@@ -373,34 +373,55 @@
     .sol-card p  { font-size: 0.88rem; font-weight: 300; color: var(--ink-2); line-height: 1.65; }
 
     /* QR demo visual */
+    /* QR demo — layout desktop en 2 colonnes */
     .qr-demo{
       margin: 3rem auto 0;
-      max-width: 980px;            /* <-- plus large */
+      max-width: 980px;
       background: var(--white);
       border-radius: var(--r-l);
       border: 1px solid var(--bg3);
       padding: 2rem;
-      display: grid;               /* <-- grid au lieu de flex */
-      grid-template-columns: 90px 40px 1fr; /* scan | flèche | contenu */
-      gap: 1.5rem;
+      display: grid;
+      grid-template-columns: 360px 1fr; /* gauche (démo) | droite (texte) */
+      gap: 2rem;
       align-items: start;
       box-shadow: var(--shadow);
     }
 
-    /* IMPORTANT : sur mobile, on repasse en colonne */
+    .qr-left{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .qr-arrow-down{
+      font-size: 1.6rem;
+      color: var(--green);
+      line-height: 1;
+    }
+
+    /* Zone texte à droite */
+    .qr-info{
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    /* Optionnel : un peu moins haut visuellement */
+    .qr-left .phone-mock{
+      transform: scale(0.95);
+      transform-origin: top center;
+    }
+
+    /* Mobile : on empile (texte puis démo, ou inverse si tu veux) */
     @media (max-width: 760px){
       .qr-demo{
         grid-template-columns: 1fr;
       }
-      .qr-arrow{
-        display: none; /* optionnel: cache la flèche sur mobile */
+      .qr-left .phone-mock{
+        transform: none;
       }
-    }
-
-    .qr-info{
-      display: flex;
-      flex-direction: column;
-      gap: 0.9rem;
     }
 
     .qr-box {
@@ -891,17 +912,19 @@
 
           {/* QR demo visuel */}
           <div className="qr-demo">
-            <div className="qr-box qr-scan" aria-label="Scan QR">
-              <span className="scan-line"></span>
+            {/* Colonne gauche : scan + flèche bas + tel */}
+            <div className="qr-left">
+              <div className="qr-box qr-scan" aria-label="Scan QR">
+                <span className="scan-line"></span>
+              </div>
+              <div className="qr-arrow-down">↓</div>
+              <PhoneMockup showActions={true} />
             </div>
-            <span className="qr-arrow">→</span>
+
+            {/* Colonne droite : texte */}
             <div className="qr-info">
               <h3>Vous scannez → vous voyez tout</h3>
               <p>Un écran clair, avec chaque étape et un score de transparence.</p>
-
-              <div style={{ marginTop: '1.2rem' }}>
-                <PhoneMockup showActions={true} />
-              </div>
             </div>
           </div>
         </div>
