@@ -294,6 +294,86 @@
     }
 
     /* ══════════════════════
+    MODAL ARCHITECTURE (pop-up)
+   ══════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeIn 0.18s ease both;
+    }
+
+    .modal-panel {
+      width: min(1100px, 96vw);
+      background: rgba(250,251,249,0.98);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: var(--serif);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-close {
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+    }
+
+    .modal-body { padding: 1.25rem; }
+
+    .modal-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    /* Bouton "voir l'architecture" (même style que tes CTA) */
+    .btn-archi {
+      margin-top: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--serif);
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 0.75em 1.25em;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid var(--border-em);
+      background: var(--green-dim);
+      color: var(--text);
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .btn-archi:hover {
+      background: rgba(74,158,89,0.18);
+      transform: translateY(-1px);
+    }
+
+    /* ══════════════════════
        SECTION BÉNÉFICES
     ══════════════════════ */
     #benefices { background: var(--bg2); }
@@ -589,6 +669,8 @@
      Composant : Solution
   ═══════════════════════════ */
   function Solution() {
+    const [showArchi, setShowArchi] = useState(false);
+
     const cards = [
       {
         icon: '📋',
@@ -611,6 +693,7 @@
         desc: 'Une API standard pour exposer les données à vos systèmes tiers, applications d\'audit, ou interfaces consommateurs.',
       },
     ];
+
     return (
       <section id="solution">
         <div className="container">
@@ -620,6 +703,7 @@
             DataFood ne remplace pas vos outils. Il les connecte et standardise ce qu'ils produisent,
             pour créer enfin une vue unifiée de votre chaîne.
           </p>
+
           <div className="sol-grid">
             {cards.map((c, i) => (
               <div className="sol-card" key={i}>
@@ -630,42 +714,64 @@
               </div>
             ))}
           </div>
+
+          {/* Bouton pour afficher l'architecture */}
+          <button type="button" className="btn-archi" onClick={() => setShowArchi(true)}>
+            🧩 Voir l’architecture
+          </button>
+
+          {/* Modal */}
+          <ArchitectureModal open={showArchi} onClose={() => setShowArchi(false)} />
         </div>
       </section>
     );
   }
 
   // /* ═══════════════════════════
-  //    Composant : Architecture
+  //    Composant : Architecture (sous forme de bouton)
   // ═══════════════════════════ */
 
-  // function Architecture() {
-  //   return (
-  //     <section id="architecture" className="architecture-section">
-  //       <div className="container">
-  //         <p className="section-tag">ARCHITECTURE TECHNIQUE</p>
+  function ArchitectureModal({ open, onClose }) {
+    useEffect(() => {
+      if (!open) return;
+      const onKeyDown = (e) => {
+        if (e.key === "Escape") onClose();
+      };
+      window.addEventListener("keydown", onKeyDown);
+      // bloque le scroll derrière
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
 
-  //         <h2 className="section-title">
-  //           Une base de données centrale <span className="hl">liable par API</span>
-  //         </h2>
+      return () => {
+        window.removeEventListener("keydown", onKeyDown);
+        document.body.style.overflow = prev;
+      };
+    }, [open, onClose]);
 
-  //         <p className="section-lead">
-  //           DataFood structure, centralise et expose les données de traçabilité via une API REST sécurisée,
-  //           permettant une intégration simple dans les systèmes des acteurs agroalimentaires.
-  //         </p>
+    if (!open) return null;
 
-  //         <div className="architecture-image-wrapper">
-  //           <img
-  //             src="assets/images/Architecture_BDD_1.png"
-  //             alt="Architecture technique DataFood"
-  //             className="architecture-image"
-  //             loading="lazy"
-  //           />
-  //         </div>
-  //       </div>
-  //     </section>
-  //   );
-  // }
+    return (
+      <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+        <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="modal-title">Architecture technique — DataFood</div>
+            <button className="modal-close" onClick={onClose} aria-label="Fermer">
+              ✕
+            </button>
+          </div>
+
+          <div className="modal-body">
+            <img
+              className="modal-img"
+              src="assets/images/Architecture_BDD_1.png"
+              alt="Architecture technique DataFood"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* ═══════════════════════════
      Composant : Fonctionnalités ou cas d'usage
