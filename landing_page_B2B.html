@@ -20,20 +20,20 @@
        DESIGN TOKENS — Industrial Precision
     ═══════════════════════════════════════ */
     :root {
-      --bg:        #0e110f;
-      --bg2:       #141918;
-      --bg3:       #1a201c;
-      --surface:   #1e2620;
-      --border:    rgba(255,255,255,0.07);
-      --border-em: rgba(74,158,89,0.4);
+      --bg:        #ffffff;
+      --bg2:       #f8faf7;
+      --bg3:       #f0f3ef;
+      --surface:   #fafbf9;
+      --border:    rgba(0,0,0,0.08);
+      --border-em: rgba(74,158,89,0.3);
       --green:     #4a9e59;
-      --green-l:   #6dc27e;
-      --green-dim: rgba(74,158,89,0.12);
+      --green-l:   #5fb366;
+      --green-dim: rgba(74,158,89,0.1);
       --amber:     #d4933a;
       --red:       #c94a4a;
-      --text:      #e8ede9;
-      --text-2:    #8fa492;
-      --text-3:    #5a6e5e;
+      --text:      #1a1a1a;
+      --text-2:    #5a6e5e;
+      --text-3:    #8fa492;
       --serif:    'Playfair Display', Georgia, serif;
       --body:     'Nunito', sans-serif;
     }
@@ -94,7 +94,7 @@
       border-bottom: 1px solid var(--border);
     }
     .nav-left { display: flex; align-items: center; gap: 1rem; }
-    .nav-logo { font-family: var(--serif); font-size: 1.35rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .nav-logo { font-family: var(--serif); font-size: 1.35rem; font-weight: 800; color: var(--text-3); letter-spacing: -0.02em; }
     .nav-logo span { color: var(--green); }
     .nav-tag {
       font-family: var(--serif); font-size: 0.65rem; font-weight: 600;
@@ -263,7 +263,7 @@
     .sol-icon { font-size: 1.8rem; margin-bottom: 1rem; display: block; }
     .sol-card h3 { font-family: var(--serif); font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
     .sol-card p  { font-size: 0.82rem; font-weight: 300; color: var(--text-2); line-height: 1.6; }
-    .sol-num { position: absolute; top: 1rem; right: 1.2rem; font-family: var(--serif); font-size: 2.5rem; font-weight: 800; color: rgba(74,158,89,0.07); line-height: 1; }
+    .sol-num { position: absolute; top: 1rem; right: 1.2rem; font-family: var(--serif); font-size: 2.5rem; font-weight: 800; color: rgba(18, 39, 22, 0.5); line-height: 1; }
 
     /* ══════════════════════
    SECTION ARCHITECTURE
@@ -607,7 +607,7 @@
       },
       {
         icon: '🔌',
-        title: 'API intégrable',
+        title: 'Une Interface d\'exposition',
         desc: 'Une API standard pour exposer les données à vos systèmes tiers, applications d\'audit, ou interfaces consommateurs.',
       },
     ];
@@ -615,7 +615,7 @@
       <section id="solution">
         <div className="container">
           <p className="section-tag">La solution</p>
-          <h2 className="section-title">Un protocole standard<br/>+ une base centralisée + une API.</h2>
+          <h2 className="section-title">Un protocole standard<br/>+ une base centralisée + une Interface.</h2>
           <p className="section-lead">
             DataFood ne remplace pas vos outils. Il les connecte et standardise ce qu'ils produisent,
             pour créer enfin une vue unifiée de votre chaîne.
@@ -635,32 +635,94 @@
     );
   }
 
+  // /* ═══════════════════════════
+  //    Composant : Architecture
+  // ═══════════════════════════ */
+
+  // function Architecture() {
+  //   return (
+  //     <section id="architecture" className="architecture-section">
+  //       <div className="container">
+  //         <p className="section-tag">ARCHITECTURE TECHNIQUE</p>
+
+  //         <h2 className="section-title">
+  //           Une base de données centrale <span className="hl">liable par API</span>
+  //         </h2>
+
+  //         <p className="section-lead">
+  //           DataFood structure, centralise et expose les données de traçabilité via une API REST sécurisée,
+  //           permettant une intégration simple dans les systèmes des acteurs agroalimentaires.
+  //         </p>
+
+  //         <div className="architecture-image-wrapper">
+  //           <img
+  //             src="assets/images/Architecture_BDD_1.png"
+  //             alt="Architecture technique DataFood"
+  //             className="architecture-image"
+  //             loading="lazy"
+  //           />
+  //         </div>
+  //       </div>
+  //     </section>
+  //   );
+  // }
+
   /* ═══════════════════════════
-     Composant : Architecture
+     Composant : Fonctionnalités ou cas d'usage
   ═══════════════════════════ */
 
-  function Architecture() {
+  function Fonctionnalites() {
+    const features = [
+      {
+        icon: '🔍',
+        title: 'Recherche multidimensionnelle',
+        desc: 'Retrouvez un lot par numéro, date, intermédiaire ou lieu en quelques secondes, sans appel téléphonique.',
+      },
+      {
+        icon: '📊',
+        title: 'Dashboard de traçabilité',
+        desc: 'Vue temps réel de toutes les étapes : production, transformation, transport, conditionnement.',
+      },
+      {
+        icon: '🔐',
+        title: 'Sécurité et conformité',
+        desc: 'Audit trail complet, permissions granulaires, conformité GDPR et réglementations alimentaires.',
+      },
+      {
+        icon: '🔗',
+        title: 'Intégration API',
+        desc: 'Connectez vos ERP, systèmes de production ou applications métier via une API REST standardisée.',
+      },
+      {
+        icon: '📱',
+        title: 'Interface consommateur',
+        desc: 'QR code sur emballage pour permettre aux clients finaux de consulter la traçabilité de leur produit.',
+      },
+      {
+        icon: '⚡',
+        title: 'Alertes et notifications',
+        desc: 'Soyez averti instantanément de tout incident ou anomalie détectée dans la chaîne.',
+      },
+    ];
+
     return (
-      <section id="architecture" className="architecture-section">
+      <section id="fonctionnalites">
         <div className="container">
-          <p className="section-tag">ARCHITECTURE TECHNIQUE</p>
-
-          <h2 className="section-title">
-            Une base de données centrale <span className="hl">liable par API</span>
-          </h2>
-
+          <p className="section-tag">Fonctionnalités</p>
+          <h2 className="section-title">Des outils pensés pour<br/>vos enjeux opérationnels.</h2>
           <p className="section-lead">
-            DataFood structure, centralise et expose les données de traçabilité via une API REST sécurisée,
-            permettant une intégration simple dans les systèmes des acteurs agroalimentaires.
+            DataFood intègre les fonctionnalités essentielles pour une traçabilité efficace,
+            de la crise sanitaire à la valorisation commerciale.
           </p>
-
-          <div className="architecture-image-wrapper">
-            <img
-              src="assets/images/Architecture_BDD_1.png"
-              alt="Architecture technique DataFood"
-              className="architecture-image"
-              loading="lazy"
-            />
+          <div className="sol-grid">
+            {features.map((f, i) => (
+              <div className="sol-card" key={i}>
+                <span className="sol-num">{String(i+1).padStart(2,'0')}</span>
+                <span className="sol-icon">{f.icon}</span>
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -750,6 +812,12 @@
       {
         tag: '🏷 Différenciation marketing',
         title: 'Valoriser la transparence auprès de vos clients',
+        desc: 'Exposez la traçabilité de vos produits directement à vos clients finaux via QR code ou interface consommateur, alimentée par l\'API DataFood. Un argument de vente fort et vérifiable.',
+        flow: ['QR sur emballage', 'API DataFood', 'Interface consommateur', 'Confiance & fidélisation'],
+      },
+      {
+        tag: '🏷 Mise en confiance des clients pour les produits PREMIUM',
+        title: 'Renforcer la confiance et la fidélité de vos clients finaux',
         desc: 'Exposez la traçabilité de vos produits directement à vos clients finaux via QR code ou interface consommateur, alimentée par l\'API DataFood. Un argument de vente fort et vérifiable.',
         flow: ['QR sur emballage', 'API DataFood', 'Interface consommateur', 'Confiance & fidélisation'],
       },
@@ -938,7 +1006,7 @@
         <Hero />
         <Problemes />
         <Solution />
-        <Architecture />
+        <Fonctionnalites />
         <Benefices />
         <CasUsage />
         <FormulaireCTA />
