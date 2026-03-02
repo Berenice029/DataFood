@@ -266,6 +266,34 @@
     .sol-num { position: absolute; top: 1rem; right: 1.2rem; font-family: var(--serif); font-size: 2.5rem; font-weight: 800; color: rgba(74,158,89,0.07); line-height: 1; }
 
     /* ══════════════════════
+   SECTION ARCHITECTURE
+══════════════════════ */
+
+    .architecture-section {
+      background: var(--bg2);
+      text-align: center;
+    }
+
+    .architecture-image-wrapper {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .architecture-image {
+      max-width: 100%;
+      width: 1100px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .architecture-image:hover {
+      transform: scale(1.02);
+    }
+
+    /* ══════════════════════
        SECTION BÉNÉFICES
     ══════════════════════ */
     #benefices { background: var(--bg2); }
@@ -608,6 +636,38 @@
   }
 
   /* ═══════════════════════════
+     Composant : Architecture
+  ═══════════════════════════ */
+
+  function Architecture() {
+    return (
+      <section id="architecture" className="architecture-section">
+        <div className="container">
+          <p className="section-tag">ARCHITECTURE TECHNIQUE</p>
+
+          <h2 className="section-title">
+            Une base de données centrale <span className="hl">liable par API</span>
+          </h2>
+
+          <p className="section-lead">
+            DataFood structure, centralise et expose les données de traçabilité via une API REST sécurisée,
+            permettant une intégration simple dans les systèmes des acteurs agroalimentaires.
+          </p>
+
+          <div className="architecture-image-wrapper">
+            <img
+              src="assets/images/Architecture_BDD_1.png"
+              alt="Architecture technique DataFood"
+              className="architecture-image"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* ═══════════════════════════
      Composant : Bénéfices
   ═══════════════════════════ */
   function Benefices() {
@@ -878,6 +938,7 @@
         <Hero />
         <Problemes />
         <Solution />
+        <Architecture />
         <Benefices />
         <CasUsage />
         <FormulaireCTA />
