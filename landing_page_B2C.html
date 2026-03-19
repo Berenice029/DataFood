@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DataFood — Sachez ce que vous mangez</title>
+  <title>DataFood — Comprends ce que tu manges</title>
 
   <!-- Fonts : Playfair Display (serif émotionnel) + Nunito (body doux) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -323,7 +323,7 @@
     .label-item.real   .li-badge { background: var(--green-l); color: var(--green); }
     .label-item.hidden .li-badge { background: #fdd9b5; color: var(--amber); }
 
-    .prob-list { display: flex; flex-direction: column; gap: 1rem; }
+    .prob-list { display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; }
     .prob-item {
       display: flex; align-items: flex-start; gap: 1rem;
       padding: 1.4rem; border-radius: var(--r);
@@ -681,7 +681,7 @@
     }
 
     function goMap() {
-      alert("Voir la carte : à brancher (section ou modal) 🙂");
+      return
     }
 
     return (
@@ -754,13 +754,13 @@
         <div className="hero">
           {/* Texte gauche */}
           <div className="hero-left">
-            <p className="hero-pill fade-up d1">Traçabilité pour tous</p>
+            <p className="hero-pill fade-up d1">Traçabilité simple</p>
             <h1 className="fade-up d2">
               Enfin une traçabilité <em>complète</em> de vos produits alimentaires.
             </h1>
             <p className="hero-sub fade-up d3">
-              Découvrez toutes les étapes de production, pas seulement l'origine.
-              Du champ à votre assiette, en quelques secondes.
+              Découvre toutes les étapes de production, pas seulement l'origine.
+              <br/>Du champ à ton assiette.
             </p>
             <div className="hero-cta fade-up d4">
               <button className="btn-main primary" onClick={scrollToDemo}>
@@ -773,8 +773,8 @@
             <div className="hero-trust fade-up d5">
               {[
                 { icon:'🔒', text:'Données vérifiées' },
-                { icon:'⚡', text:'Résultat instantané' },
-                { icon:'🆓', text:'Gratuit pour les consommateurs' },
+                { icon:'⚡', text:'En 2 secondes' },
+                { icon:'🆓', text:'100% gratuit' },
               ].map((t,i) => (
                 <div className="trust-item" key={i}>
                   <span>{t.icon}</span> {t.text}
@@ -816,11 +816,11 @@
     ];
 
     const labelItems = [
-      { icon:'🟢', label:'Ferme identifiée', badge:'Visible', type:'real' },
-      { icon:'⚠️', label:'3 transporteurs impliqués', badge:'Caché', type:'hidden' },
-      { icon:'⚠️', label:'Entrepôt frigorifique (4 jours)', badge:'Caché', type:'hidden' },
-      { icon:'🟢', label:'Distributeur certifié Bio', badge:'Visible', type:'real' },
-      { icon:'⚠️', label:'Lot mélangé en usine', badge:'Caché', type:'hidden' },
+      { icon:'🟢', label:'Producteur', badge:'Visible', type:'real' },
+      { icon:'⚠️', label:'3 transporteurs', badge:'Caché', type:'hidden' },
+      { icon:'⚠️', label:'Entrepôt (4 jours)', badge:'Caché', type:'hidden' },
+      { icon:'🟢', label:'Distributeur', badge:'Visible', type:'real' },
+      { icon:'⚠️', label:'Lot mélangé', badge:'Caché', type:'hidden' },
     ];
 
     return (
@@ -829,12 +829,12 @@
           <div className="prob-layout">
             <div>
               <p className="section-pill">🤔 Le problème</p>
-              <h2 className="st">Vous savez vraiment d'où vient ce que vous <em>mangez</em> ?</h2>
+              <h2 className="st">Savez-vous vraiment d'où vient ce que vous <em>mangez</em> ?</h2>
               <p className="s-lead">
                 Ce qui figure sur l'étiquette n'est que la surface. La réalité de la chaîne alimentaire
                 reste largement inaccessible au consommateur.
               </p>
-              <div className="prob-list">
+              <div className="prob-list" style={{maxHeight:'400px', overflowY:'auto', padding:'0.5rem 0.5rem'}}>
                 {probs.map((p,i) => (
                   <div className="prob-item" key={i}>
                     <div className="prob-icon-wrap"><span className="prob-x">✕</span></div>
@@ -876,28 +876,27 @@
     const steps = [
       {
         num: '01', emoji: '📱',
-        title: 'Scannez',
-        desc: 'Scannez le QR code sur l\'emballage avec votre téléphone. Aucune application à télécharger au lancement.',
+        title: 'Scanne',
+        desc: 'QR code / code-barres sur le produit ou le ticket.',
       },
       {
         num: '02', emoji: '🗺️',
-        title: 'Comprenez',
-        desc: 'Visualisez toute la chaîne : chaque étape, chaque acteur, chaque date. Transformations, transports, certifications.',
+        title: 'Vois tout',
+        desc: 'Toutes les étapes : production, transport, transformation.',
       },
       {
         num: '03', emoji: '✔️',
-        title: 'Choisissez',
-        desc: 'Comparez deux produits sur leur transparence réelle. Choisissez en connaissance de cause, pas sur la foi d\'une étiquette.',
+        title: 'Choisis',
+        desc: 'Compare et décide en connaissance de cause.',
       },
     ];
     return (
       <section id="solution" className="s">
         <div className="container">
           <p className="section-pill">💡 La solution</p>
-          <h2 className="st">Scannez. Comprenez.<br/><em>Choisissez.</em></h2>
+          <h2 className="st">Scanne.<br/>Comprends. <em>Décide.</em></h2>
           <p className="s-lead">
-            DataFood connecte toute la chaîne alimentaire et vous en offre une lecture claire,
-            en trois secondes, directement depuis votre téléphone.
+            DataFood te montre tout, en 2 secondes.
           </p>
           <div className="sol-steps">
             {steps.map((s,i) => (
@@ -923,8 +922,8 @@
 
             {/* Colonne droite : texte */}
             <div className="qr-info">
-              <h3>Vous scannez → vous voyez tout</h3>
-              <p>Un écran clair, avec chaque étape et un score de transparence.</p>
+              <h3>Tu scannes → tu vois tout</h3>
+              <p>Chaque étape, un score de transparence. C\'est simple.</p>
             </div>
           </div>
         </div>
@@ -939,27 +938,27 @@
     const bens = [
       {
         cls: 'green', icon: '🔍', title: 'Transparence totale',
-        desc: 'Plus de zones d\'ombre. Vous accédez à l\'intégralité de la chaîne de production, pas seulement à l\'origine.',
-        items: ['Toutes les étapes visibles', 'Chaque acteur identifié', 'Dates et lieux certifiés'],
+        desc: 'Tu vois tout. Plus de secrets.',
+        items: ['Toutes les étapes', 'Tous les acteurs', 'Toutes les dates'],
       },
       {
         cls: 'warm', icon: '🧠', title: 'Choix éclairé',
-        desc: 'Comparez deux produits sur leur transparence réelle, et non sur leur packaging. Décidez avec les bonnes informations.',
-        items: ['Comparaison objective', 'Score de transparence', 'Alertes sur anomalies'],
+        desc: 'Compare et décide en 5 secondes.',
+        items: ['Comparaison claire', 'Score de transparence', 'Zéro doute'],
       },
       {
-        cls: 'earth', icon: '🌍', title: 'Consommation responsable',
-        desc: 'En choisissant les chaînes transparentes, vous encouragez les pratiques vertueuses et participez à un cercle vertueux.',
-        items: ['Favoriser les filières courtes', 'Récompenser la transparence', 'Impact mesurable'],
+        cls: 'earth', icon: '🌍', title: 'Achète mieux',
+        desc: 'Choisis selon tes valeurs.',
+        items: ['Origine claireEncourager la transparence', 'Impact mesurable'],
       },
     ];
     return (
       <section className="s ben-bg">
         <div className="container">
           <p className="section-pill">🌱 Les bénéfices</p>
-          <h2 className="st">Manger mieux commence par <em>savoir mieux.</em></h2>
+          <h2 className="st">Pourquoi <em>DataFood</em> ?</h2>
           <p className="s-lead">
-            DataFood vous redonne le pouvoir en tant que consommateur : celui de savoir, de comprendre et de choisir.
+            Simple. Rapide. Clair.
           </p>
           <div className="ben-grid">
             {bens.map((b,i) => (
@@ -1007,9 +1006,9 @@
     return (
       <section className="s">
         <div className="container">
-          <p className="section-pill">📖 Cas d'usage</p>
-          <h2 className="st">DataFood dans votre <em>quotidien</em></h2>
-          <p className="s-lead">Trois situations concrètes où DataFood change la donne pour vous, au quotidien.</p>
+          <p className="section-pill">📖 Exemples</p>
+          <h2 className="st">DataFood au <em>quotidien</em></h2>
+          <p className="s-lead">Trois situations où DataFood change tout.</p>
           <div className="cas-grid">
             {cas.map((c,i) => (
               <div className="cas-card" key={i}>
@@ -1020,11 +1019,11 @@
                 <div className="cas-body">
                   <h3>{c.title}</h3>
                   <p>{c.desc}</p>
-                  <div className="cas-steps">
+                  {/*<div className="cas-steps">
                     {c.steps.map((s,j) => (
                       <div className="cas-step" key={j}>{s}</div>
                     ))}
-                  </div>
+                  </div>*/}
                 </div>
               </div>
             ))}
@@ -1083,17 +1082,16 @@
           <div className="cta-inner">
             {/* Texte */}
             <div className="cta-text">
-              <p className="section-pill" style={{color:'rgba(255,255,255,0.7)'}}>🎯 Rejoindre le mouvement</p>
-              <h2>Envie de savoir ce que vous mangez <em>vraiment</em> ?</h2>
+              <p className="section-pill" style={{color:'rgba(255,255,255,0.7)'}}>🎯 Sois parmi les premiers</p>
+              <h2>Envie de savoir ce que tu manges <em>vraiment</em> ?</h2>
               <p>
-                DataFood est en cours de développement. Inscrivez-vous pour être parmi
-                les premiers à accéder à l'application et participer à la bêta.
+                Inscris-toi pour tester l\'appli en avant-première.
               </p>
               <div style={{marginTop:'2rem', display:'flex', flexDirection:'column', gap:'0.8rem'}}>
                 {[
-                  'Accès prioritaire à la bêta',
+                  'Accès prioritaire',
                   'Notification au lancement',
-                  'Participer à la co-construction du produit',
+                  'Aide à co-construire le produit',
                 ].map((t,i) => (
                   <div key={i} style={{display:'flex', alignItems:'center', gap:'0.6rem', fontSize:'0.92rem', color:'rgba(255,255,255,0.8)'}}>
                     <span style={{color:'#a8d5b5', fontWeight:700}}>✓</span> {t}
@@ -1107,10 +1105,9 @@
               {submitted ? (
                 <div className="form-success">
                   <span className="success-icon">🎉</span>
-                  <h4>Vous êtes sur la liste !</h4>
+                  <h4>C\'est bon, tu es sur la liste !</h4>
                   <p>
-                    Merci pour votre intérêt. Vous serez parmi les premiers informés
-                    du lancement de DataFood et invités à rejoindre la bêta.
+                    Tu seras parmi les premiers informés au lancement.
                   </p>
                   <p style={{marginTop:'0.8rem', fontSize:'0.82rem', color:'var(--ink-3)'}}>
                     Résultat enregistré : {interest === 'oui' ? '👍 Intéressé(e)' : '🤔 Pas sûr(e)'} · {email}
@@ -1118,24 +1115,24 @@
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
-                  <h3>Je veux être informé(e)</h3>
+                  <h3>Teste en avant-première</h3>
 
                   <div className="form-group">
-                    <label htmlFor="email">Votre email *</label>
+                    <label htmlFor="email">Ton email *</label>
                     <input
                       id="email" type="email" className="form-ctrl"
-                      placeholder="vous@exemple.com"
+                      placeholder="ton@email.com"
                       value={email} onChange={e => setEmail(e.target.value)} required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Souhaiteriez-vous utiliser ce type d'application ? *</label>
+                    <label>Tu serais intéressé(e) ? *</label>
                     <div className="radio-group">
                       {[
-                        { value:'oui',   label:'✅ Oui, tout à fait !' },
+                        { value:'oui',   label:'✅ Oui !' },
                         { value:'peut-etre', label:'🤔 Peut-être' },
-                        { value:'non',   label:'❌ Non, pas vraiment' },
+                        { value:'non',   label:'❌ Non' },
                       ].map(opt => (
                         <div className="radio-opt" key={opt.value}>
                           <input
@@ -1150,7 +1147,7 @@
                   </div>
 
                   <button type="submit" className="btn-submit-b2c" disabled={!isValid || loading}>
-                    {loading ? 'Enregistrement…' : 'Je veux être informé(e) →'}
+                    {loading ? 'Envoi…' : 'Je veux tester 🚀'}
                   </button>
 
                   <p style={{fontSize:'0.75rem', color:'var(--ink-4)', textAlign:'center', marginTop:'0.8rem'}}>
